@@ -31,18 +31,23 @@
         android:layout_marginStart="5dp" />
 
     <TextView
-        android:id="@+id/tv"
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/tvMonth"
         android:layout_alignBottom="@id/tvMonth"
+        android:layout_marginLeft="10dp"
+        android:textStyle="bold"
+        android:textSize="16sp"
         android:text="TextView" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/tvContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/tvDay"
         android:layout_alignTop="@id/tvDay"
+        android:layout_marginLeft="10dp"
+
         android:text="TextView" />
 </RelativeLayout>

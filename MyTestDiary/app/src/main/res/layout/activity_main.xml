@@ -10,8 +10,8 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabNewDiary"
-        android:layout_width="220dp"
-        android:layout_height="193dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginRight="10dp"
@@ -42,15 +42,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="#00FFFFFF"
-            android:textSize="21dp"
-            android:text="01" />
+            android:text="01"
+            android:textSize="21sp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/LLTimeWrapper"
-        android:layout_marginTop="-3dp" />
+        android:layout_below="@id/LLTimeWrapper" />
 
 
 </RelativeLayout>
