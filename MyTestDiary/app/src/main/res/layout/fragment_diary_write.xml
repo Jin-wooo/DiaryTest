@@ -2,25 +2,77 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DiaryWriteLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
     tools:context=".DiaryWriteFragment">
 
-    <ImageView
-        android:id="@+id/imgbtnOut"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:scaleType="fitCenter"
-        android:visibility="gone"
-        android:src="@android:drawable/ic_menu_close_clear_cancel" />
-
-    <ImageView
+    <ImageButton
         android:id="@+id/imgbtnReturn"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:background="#00FFFFFF"
         android:scaleType="fitCenter"
         android:src="@android:drawable/ic_menu_revert" />
+
+    <ImageButton
+        android:id="@+id/imgbtnOut"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="#00FFFFFF"
+        android:scaleType="fitCenter"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvToday"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:text="1월 21일 목요일"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:background="#00ffffff"
+        android:text="저 장"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tvToday"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp">
+
+        <EditText
+            android:id="@+id/editTextTextPersonName2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:inputType="textPersonName"
+            android:background="@null"
+            android:textStyle="bold"
+            android:textSize="21sp"
+            android:hint="오늘에게 제목을 지어줄래요?" />
+
+        <EditText
+            android:id="@+id/editTextTextMultiLine2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="start|top"
+            android:background="@null"
+            android:inputType="textMultiLine"
+            android:hint="기록해 볼까요?"
+            android:layout_marginTop="5dp"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"/>
+    </LinearLayout>
 
 
 </RelativeLayout>
