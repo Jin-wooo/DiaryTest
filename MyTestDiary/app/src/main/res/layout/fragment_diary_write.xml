@@ -5,11 +5,13 @@
     android:id="@+id/DiaryWriteLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:clickable="true"
     android:padding="10dp"
     tools:context=".DiaryWriteFragment">
 
     <ImageButton
-        android:id="@+id/imgbtnReturn"
+        android:id="@+id/btnReturn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="#00FFFFFF"
@@ -17,7 +19,7 @@
         android:src="@android:drawable/ic_menu_revert" />
 
     <ImageButton
-        android:id="@+id/imgbtnOut"
+        android:id="@+id/btnOut"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="#00FFFFFF"
@@ -35,6 +37,7 @@
 
     <Button
         android:id="@+id/btnSave"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
@@ -47,31 +50,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/tvToday"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
 
         <EditText
-            android:id="@+id/editTextTextPersonName2"
+            android:id="@+id/editTextDiaryTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
-            android:inputType="textPersonName"
             android:background="@null"
-            android:textStyle="bold"
+            android:hint="오늘에게 제목을 지어줄래요?"
+            android:inputType="textPersonName"
+            android:paddingLeft="5dp"
             android:textSize="21sp"
-            android:hint="오늘에게 제목을 지어줄래요?" />
+            android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/editTextTextMultiLine2"
+            android:id="@+id/editTextContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="start|top"
-            android:background="@null"
-            android:inputType="textMultiLine"
-            android:hint="기록해 볼까요?"
             android:layout_marginTop="5dp"
-            android:paddingTop="5dp"
-            android:paddingLeft="5dp"/>
+            android:background="@null"
+            android:gravity="start|top"
+            android:hint="기록해 볼까요?"
+            android:inputType="textMultiLine"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp" />
     </LinearLayout>
 
 

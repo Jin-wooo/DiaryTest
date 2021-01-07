@@ -1,12 +1,20 @@
 package com.example.mytestdiary;
 
+import android.Manifest;
+import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,6 +27,10 @@ public class DiaryWriteFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private ImageButton imgbtnReturn;
+    private ImageButton imgbtnOut;
+    private Button btnSave;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -60,7 +72,33 @@ public class DiaryWriteFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_diary_write, container, false);
+        final ViewGroup rootView = (ViewGroup) inflater.inflate
+                (R.layout.fragment_diary_write, container, false);
+
+        imgbtnReturn = (ImageButton) rootView.findViewById(R.id.btnReturn);
+        imgbtnReturn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity mainActivity = (MainActivity) getActivity();
+                mainActivity.closeDiary(); }
+        });
+
+        EditText editTextContent = (EditText) rootView.findViewById(R.id.editTextContent);
+        editTextContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean isFocused) {
+                if (isFocused) {
+                    imgbtnReturn.setVisibility(View.GONE);
+                    imgbtnOut.setVisibility(View.VISIBLE);
+                    btnSave.setVisibility(View.VISIBLE);
+                }
+                else {
+
+                }
+            }
+        });
+
+
         return rootView;
     }
 }
