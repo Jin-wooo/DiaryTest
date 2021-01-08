@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,8 @@ public class DiaryWriteFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private boolean isTextChanged;
 
     public DiaryWriteFragment() {
         // Required empty public constructor
@@ -83,7 +87,28 @@ public class DiaryWriteFragment extends Fragment {
                 mainActivity.closeDiary(); }
         });
 
+        imgbtnOut = (ImageButton) rootView.findViewById(R.id.btnOut);
+        imgbtnOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imgbtnReturn.setVisibility(View.VISIBLE);
+                imgbtnOut.setVisibility(View.GONE);
+                btnSave.setVisibility(View.GONE);
+
+                if (isTextChanged) {
+                    // 다이얼로그를 띄워줍시다.
+                }
+                else {
+
+                }
+            }
+        });
+
+        btnSave = (Button) rootView.findViewById(R.id.btnSave);
+
+
         EditText editTextContent = (EditText) rootView.findViewById(R.id.editTextContent);
+        editTextContent.clearComposingText();
         editTextContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean isFocused) {
@@ -98,6 +123,22 @@ public class DiaryWriteFragment extends Fragment {
             }
         });
 
+        editTextContent.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
         return rootView;
     }
