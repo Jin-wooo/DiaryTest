@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MyTestDiary</string>
+    <string name="save_caution_1">나가시겠습니까?</string>
+    <string name="save_caution_2">저장하지 않은 내용은 사라집니다.</string>
+    <string name="gonna_out">나가기</string>
+    <string name="cancel">취소</string>
 </resources>

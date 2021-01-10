@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/round_gray_border"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tvDlgTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:text="@string/save_caution_1"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvDlgContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvDlgTitle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:text="@string/save_caution_2" />
+
+    <Button
+        android:id="@+id/btnDlgOut"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/tvDlgContent"
+        android:background="@drawable/round_gray_border"
+        android:text="@string/gonna_out" />
+
+    <Button
+        android:id="@+id/btnDlgCancel"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_toStartOf="@id/btnDlgOut"
+        android:layout_toLeftOf="@id/btnDlgOut"
+        android:layout_alignBottom="@id/btnDlgOut"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/round_gray_border"
+        android:text="@string/cancel" />
+</RelativeLayout>

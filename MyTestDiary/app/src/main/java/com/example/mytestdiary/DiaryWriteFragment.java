@@ -1,6 +1,7 @@
 package com.example.mytestdiary;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
@@ -14,9 +15,12 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+
+import javax.microedition.khronos.egl.EGLDisplay;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,18 +29,11 @@ import android.widget.ImageButton;
  */
 public class DiaryWriteFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
+    private EditText editTextContent;
+    private EditText editTextDiaryTitle;
     private ImageButton imgbtnReturn;
     private ImageButton imgbtnOut;
     private Button btnSave;
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private boolean isTextChanged;
 
@@ -48,27 +45,15 @@ public class DiaryWriteFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param
+     * @param
      * @return A new instance of fragment DiaryWriteFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static DiaryWriteFragment newInstance(String param1, String param2) {
-        DiaryWriteFragment fragment = new DiaryWriteFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
     }
 
     @Override
@@ -78,6 +63,9 @@ public class DiaryWriteFragment extends Fragment {
 
         final ViewGroup rootView = (ViewGroup) inflater.inflate
                 (R.layout.fragment_diary_write, container, false);
+        final InputMethodManager inputMethodManager =
+                (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
 
         imgbtnReturn = (ImageButton) rootView.findViewById(R.id.btnReturn);
         imgbtnReturn.setOnClickListener(new View.OnClickListener() {
@@ -94,6 +82,10 @@ public class DiaryWriteFragment extends Fragment {
                 imgbtnReturn.setVisibility(View.VISIBLE);
                 imgbtnOut.setVisibility(View.GONE);
                 btnSave.setVisibility(View.GONE);
+                inputMethodManager.hideSoftInputFromWindow
+                        (getActivity().getCurrentFocus().getWindowToken(), inputMethodManager.HIDE_NOT_ALWAYS);
+                editTextContent.clearFocus();
+                editTextDiaryTitle.clearFocus();
 
                 if (isTextChanged) {
                     // 다이얼로그를 띄워줍시다.
@@ -107,8 +99,7 @@ public class DiaryWriteFragment extends Fragment {
         btnSave = (Button) rootView.findViewById(R.id.btnSave);
 
 
-        EditText editTextContent = (EditText) rootView.findViewById(R.id.editTextContent);
-        editTextContent.clearComposingText();
+        editTextContent = (EditText) rootView.findViewById(R.id.editTextContent);
         editTextContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean isFocused) {
@@ -126,7 +117,7 @@ public class DiaryWriteFragment extends Fragment {
         editTextContent.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-
+                // Nothing...
             }
 
             @Override
@@ -136,7 +127,19 @@ public class DiaryWriteFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                // Nothing...
+            }
+        });
 
+        editTextDiaryTitle = (EditText) rootView.findViewById(R.id.editTextDiaryTitle);
+        editTextDiaryTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean isFocused) {
+                if (isFocused) {
+                    imgbtnReturn.setVisibility(View.GONE);
+                    imgbtnOut.setVisibility(View.VISIBLE);
+                    btnSave.setVisibility(View.VISIBLE);
+                }
             }
         });
 

@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     // Buttons
     protected FloatingActionButton fabNewDiary;
 
+    protected DiaryDBHelper diaryDBHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         rvDiaryList.setAdapter(diaryListAdapter);
 
         diaryWriteFragment = new DiaryWriteFragment();
+
+        diaryDBHelper = new DiaryDBHelper(this);
     }
 
     public void closeDiary() {
