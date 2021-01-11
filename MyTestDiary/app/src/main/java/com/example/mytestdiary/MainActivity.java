@@ -22,7 +22,11 @@ public class MainActivity extends AppCompatActivity {
     private DiaryListAdapter diaryListAdapter;
 
     // Buttons
-    protected FloatingActionButton fabNewDiary;
+    private FloatingActionButton fabNewDiary;
+
+    public DiaryDBHelper getDiaryDBHelper() {
+        return diaryDBHelper;
+    }
 
     protected DiaryDBHelper diaryDBHelper;
 

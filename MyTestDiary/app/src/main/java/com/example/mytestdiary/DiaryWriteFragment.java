@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,19 +42,9 @@ public class DiaryWriteFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param
-     * @param
-     * @return A new instance of fragment DiaryWriteFragment.
-     */
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -65,6 +56,7 @@ public class DiaryWriteFragment extends Fragment {
                 (R.layout.fragment_diary_write, container, false);
         final InputMethodManager inputMethodManager =
                 (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        final SaveAlertDialog saveAlertDialog = new SaveAlertDialog();
 
 
         imgbtnReturn = (ImageButton) rootView.findViewById(R.id.btnReturn);
@@ -87,12 +79,25 @@ public class DiaryWriteFragment extends Fragment {
                 editTextContent.clearFocus();
                 editTextDiaryTitle.clearFocus();
 
-                if (isTextChanged) {
-                    // 다이얼로그를 띄워줍시다.
-                }
-                else {
+                saveAlertDialog.setOnNoticeDialogListener(new SaveAlertDialog.SaveDialogListener() {
+                    @Override
+                    public void onDialogOutClick(View view) {
 
-                }
+                    }
+
+                    @Override
+                    public void onDialogCancelClick(View view) {
+                        saveAlertDialog.dismiss();
+                    }
+                });
+                saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
+
+//                if (isTextChanged) {
+//                    // 다이얼로그를 띄워줍시다.
+//                }
+//                else {
+//
+//                }
             }
         });
 
@@ -117,17 +122,18 @@ public class DiaryWriteFragment extends Fragment {
         editTextContent.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                // Nothing...
+                Log.d("EditText", "Before Called");
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-
+                Log.d("EditText", "Changed Called");
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
                 // Nothing...
+                Log.d("EditText", "After Called");
             }
         });
 
