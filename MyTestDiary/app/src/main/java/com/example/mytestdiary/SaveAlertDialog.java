@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -37,8 +38,9 @@ public class SaveAlertDialog extends DialogFragment {
                              @Nullable Bundle savedInstanceState) {
         View mainView = inflater.inflate(R.layout.dialog_save_alert, null);
         setCancelable(false);
-        getDialog().setCanceledOnTouchOutside(false);
-        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        getDialog().setCanceledOnTouchOutside(false); // 바깥 터치를 막아주는 부분
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // 창 자체 배경을 투명하게
+        getDialog().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND); //
 
         btnDlgOut = (Button) mainView.findViewById(R.id.btnDlgOut);
         btnDlgOut.setOnClickListener(new View.OnClickListener() {

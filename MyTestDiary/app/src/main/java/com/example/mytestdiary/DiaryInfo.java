@@ -3,6 +3,7 @@ package com.example.mytestdiary;
 public class DiaryInfo {
     private String strDiaryTitle;
     private String strDiaryContent;
+    private int numDiaryWriteYear;
     private int numDiaryWriteMonth;
     private int numDiaryWriteDay;
     private int numTypeCode;
@@ -49,12 +50,27 @@ public class DiaryInfo {
     public void setNumTypeCode(int numTypeCode) {
         this.numTypeCode = numTypeCode;
     }
+
+    public int getNumDiaryWriteYear() {
+        return numDiaryWriteYear;
+    }
+
+    public void setNumDiaryWriteYear(int numDiaryWriteYear) {
+        this.numDiaryWriteYear = numDiaryWriteYear;
+    }
+
+    // This Function should return 8 Code
+    public int getDBDateCode() {
+        return this.numDiaryWriteYear * 10000 + this.numDiaryWriteMonth * 100 + this.numDiaryWriteDay;
+    }
+
     public DiaryInfo() {
         this.strDiaryTitle = "";
         this.strDiaryContent = "";
         this.numDiaryWriteMonth = 0;
         this.numDiaryWriteDay = 0;
         this.numTypeCode = 0;
+        this.numDiaryWriteYear = 0;
     }
 
     public DiaryInfo(DiaryInfo diaryInfo) {
@@ -63,6 +79,6 @@ public class DiaryInfo {
         this.numDiaryWriteMonth = diaryInfo.numDiaryWriteMonth;
         this.numDiaryWriteDay = diaryInfo.numDiaryWriteDay;
         this.numTypeCode = diaryInfo.numTypeCode;
-
+        this.numDiaryWriteYear = diaryInfo.numDiaryWriteYear;
     }
 }

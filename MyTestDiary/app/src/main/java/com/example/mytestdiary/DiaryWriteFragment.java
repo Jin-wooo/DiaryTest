@@ -3,6 +3,7 @@ package com.example.mytestdiary;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.Image;
 import android.os.Bundle;
 
@@ -35,6 +36,7 @@ public class DiaryWriteFragment extends Fragment {
     private ImageButton imgbtnReturn;
     private ImageButton imgbtnOut;
     private Button btnSave;
+    private SQLiteDatabase database;
 
     private boolean isTextChanged;
 
@@ -58,6 +60,28 @@ public class DiaryWriteFragment extends Fragment {
                 (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         final SaveAlertDialog saveAlertDialog = new SaveAlertDialog();
 
+        // SaveAlertDialog Btn Setting
+        saveAlertDialog.setOnNoticeDialogListener(new SaveAlertDialog.SaveDialogListener() {
+            @Override
+            public void onDialogOutClick(View view) {
+                imgbtnReturn.setVisibility(View.VISIBLE);
+                imgbtnOut.setVisibility(View.GONE);
+                btnSave.setVisibility(View.GONE);
+                // 나가는 키가 추가되면서 키보드가 자동적으로 포커스를 잃는다. 이거면 대충 키보드를 없애는 기능은 가능해지지 않을까?
+//                        inputMethodManager.hideSoftInputFromWindow
+//                                (getActivity().getCurrentFocus().getWindowToken(), inputMethodManager.HIDE_NOT_ALWAYS);
+                editTextContent.clearFocus();
+                editTextDiaryTitle.clearFocus();
+                isTextChanged = false;
+
+                saveAlertDialog.dismiss();
+            }
+
+            @Override
+            public void onDialogCancelClick(View view) {
+                saveAlertDialog.dismiss();
+            }
+        });
 
         imgbtnReturn = (ImageButton) rootView.findViewById(R.id.btnReturn);
         imgbtnReturn.setOnClickListener(new View.OnClickListener() {
@@ -71,25 +95,6 @@ public class DiaryWriteFragment extends Fragment {
         imgbtnOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                imgbtnReturn.setVisibility(View.VISIBLE);
-                imgbtnOut.setVisibility(View.GONE);
-                btnSave.setVisibility(View.GONE);
-                inputMethodManager.hideSoftInputFromWindow
-                        (getActivity().getCurrentFocus().getWindowToken(), inputMethodManager.HIDE_NOT_ALWAYS);
-                editTextContent.clearFocus();
-                editTextDiaryTitle.clearFocus();
-
-                saveAlertDialog.setOnNoticeDialogListener(new SaveAlertDialog.SaveDialogListener() {
-                    @Override
-                    public void onDialogOutClick(View view) {
-
-                    }
-
-                    @Override
-                    public void onDialogCancelClick(View view) {
-                        saveAlertDialog.dismiss();
-                    }
-                });
                 saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
 
 //                if (isTextChanged) {
@@ -128,6 +133,7 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 Log.d("EditText", "Changed Called");
+                isTextChanged = true;
             }
 
             @Override

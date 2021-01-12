@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.FrameMetrics;
 import android.view.View;
 
@@ -15,6 +16,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final static int NO_DATE = 0;
+    private final static int NO_IDX = -1;
 
     DiaryWriteFragment diaryWriteFragment;
     FragmentTransaction diaryTransaction;
@@ -27,8 +31,9 @@ public class MainActivity extends AppCompatActivity {
     public DiaryDBHelper getDiaryDBHelper() {
         return diaryDBHelper;
     }
-
     protected DiaryDBHelper diaryDBHelper;
+
+    Calendar calendar;
 
 
     @Override
@@ -37,18 +42,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
+        calendar = Calendar.getInstance();
         // 다이어리 아이템 클릭했을 때 작동하는 함수.
         // 당연하겠지만 내가 적은 일기장을 띄워주겠죠? 이건 DB랑 연동해서 작업해봅시다.
-//        diaryListAdapter.setOnItemClickListener(new DiaryListAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View v, int pos) {
-//
-//            }
-//        });
+        diaryListAdapter.setOnItemClickListener(new DiaryListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View v, int pos) {
+                DiaryInfo tempInfo = diaryListAdapter.getItem(pos);
+                Bundle bundle = new Bundle();
+                bundle.putInt("date", tempInfo.getDBDateCode());
+            }
+        });
         fabNewDiary = (FloatingActionButton) findViewById(R.id.fabNewDiary);
         fabNewDiary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 fabNewDiary.hide();
 
                 diaryTransaction = getSupportFragmentManager().beginTransaction();
