@@ -1,5 +1,7 @@
 package com.example.mytestdiary;
 
+import androidx.annotation.NonNull;
+
 public class DiaryInfo {
     private String strDiaryTitle;
     private String strDiaryContent;
@@ -7,6 +9,8 @@ public class DiaryInfo {
     private int numDiaryWriteMonth;
     private int numDiaryWriteDay;
     private int numTypeCode;
+    private int numIdxCode;
+
 
     public String getStrDiaryTitle() {
         return strDiaryTitle;
@@ -55,6 +59,15 @@ public class DiaryInfo {
         return numDiaryWriteYear;
     }
 
+    public int getNumIdxCode() {
+        return numIdxCode;
+    }
+
+    public void setNumIdxCode(int numIdxCode) {
+        this.numIdxCode = numIdxCode;
+    }
+
+
     public void setNumDiaryWriteYear(int numDiaryWriteYear) {
         this.numDiaryWriteYear = numDiaryWriteYear;
     }
@@ -64,6 +77,12 @@ public class DiaryInfo {
         return this.numDiaryWriteYear * 10000 + this.numDiaryWriteMonth * 100 + this.numDiaryWriteDay;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
     public DiaryInfo() {
         this.strDiaryTitle = "";
         this.strDiaryContent = "";
@@ -71,6 +90,7 @@ public class DiaryInfo {
         this.numDiaryWriteDay = 0;
         this.numTypeCode = 0;
         this.numDiaryWriteYear = 0;
+        this.numIdxCode = 0;
     }
 
     public DiaryInfo(DiaryInfo diaryInfo) {
@@ -80,5 +100,6 @@ public class DiaryInfo {
         this.numDiaryWriteDay = diaryInfo.numDiaryWriteDay;
         this.numTypeCode = diaryInfo.numTypeCode;
         this.numDiaryWriteYear = diaryInfo.numDiaryWriteYear;
+        this.numIdxCode = diaryInfo.numIdxCode;
     }
 }

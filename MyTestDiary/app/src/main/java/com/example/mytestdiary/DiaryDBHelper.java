@@ -13,7 +13,7 @@ public class DiaryDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE TABLE diarylist(date INTEGER, idx TEXT, title TEXT, content TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS diarylist(date INTEGER, idx INTEGER, title TEXT, content TEXT);");
     }
 
     @Override

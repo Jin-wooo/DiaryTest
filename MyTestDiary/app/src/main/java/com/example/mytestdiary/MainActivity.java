@@ -6,6 +6,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.FrameMetrics;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     protected DiaryDBHelper diaryDBHelper;
 
     Calendar calendar;
+    String[] colHeads = {"date", "idx"};
 
 
     @Override
@@ -49,8 +52,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View v, int pos) {
                 DiaryInfo tempInfo = diaryListAdapter.getItem(pos);
+
                 Bundle bundle = new Bundle();
                 bundle.putInt("date", tempInfo.getDBDateCode());
+                bundle.putInt("idx", tempInfo.getNumIdxCode());
+                diaryWriteFragment.setArguments(bundle);
             }
         });
         fabNewDiary = (FloatingActionButton) findViewById(R.id.fabNewDiary);
