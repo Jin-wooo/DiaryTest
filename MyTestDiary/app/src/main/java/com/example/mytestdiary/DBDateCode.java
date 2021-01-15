@@ -5,31 +5,40 @@ import android.os.Parcelable;
 
 public class DBDateCode implements Parcelable {
 
-    private int numDiaryYear;
-    private int numDiaryMonth;
-    private int numDiaryDay;
+    private String strDiaryYear;
+    private String strDiaryMonth;
+    private String strDiaryDay;
     private String strDayName;
 
-
-    public int getNumDiaryYear() {
-        return numDiaryYear;
+    public String getStrDiaryYear() {
+        return strDiaryYear;
     }
-    public void setNumDiaryYear(int numDiaryYear) {
-        this.numDiaryYear = numDiaryYear;
-    }
-
-    public int getNumDiaryMonth() {
-        return numDiaryMonth;
-    }
-    public void setNumDiaryMonth(int numDiaryMonth) {
-        this.numDiaryMonth = numDiaryMonth;
+    public void setStrDiaryYear(String strDiaryYear) {
+        this.strDiaryYear = strDiaryYear;
     }
 
-    public int getNumDiaryDay() {
-        return numDiaryDay;
+    public String getStrDiaryMonth() {
+        return strDiaryMonth;
     }
-    public void setNumDiaryDay(int numDiaryDay) {
-        this.numDiaryDay = numDiaryDay;
+    public void setStrDiaryMonth(String strDiaryMonth) {
+        if (strDiaryMonth.length() == 1) {
+            this.strDiaryMonth = "0" + strDiaryMonth;
+        }
+        else {
+            this.strDiaryMonth = strDiaryMonth;
+        }
+    }
+
+    public String getStrDiaryDay() {
+        return strDiaryDay;
+    }
+    public void setStrDiaryDay(String strDiaryDay) {
+        if (strDiaryDay.length() == 1) {
+            this.strDiaryDay = "0" + strDiaryDay;
+        }
+        else {
+            this.strDiaryDay = strDiaryDay;
+        }
     }
 
     public String getStrDayName() {
@@ -39,12 +48,33 @@ public class DBDateCode implements Parcelable {
         this.strDayName = strDayName;
     }
 
-    public void setStrDayName(int numDay) {
-
+    protected DBDateCode(Parcel in) {
+        this.strDiaryYear = in.readString();
+        this.strDiaryMonth = in.readString();
+        this.strDiaryDay = in.readString();
+        this.strDayName = in.readString();
     }
 
-    protected DBDateCode(Parcel in) {
+    public DBDateCode(DBDateCode code) {
+        this.strDiaryYear = code.strDiaryYear;
+        this.strDiaryMonth = code.strDiaryMonth;
+        this.strDiaryDay = code.strDiaryDay;
+        this.strDayName = code.strDayName;
+    }
 
+    public DBDateCode() {
+        this.strDiaryYear = "";
+        this.strDiaryMonth = "";
+        this.strDiaryDay = "";
+        this.strDayName = "";
+    }
+
+    protected int getDateCode() {
+        return Integer.parseInt(strDiaryYear + strDiaryMonth + strDiaryDay);
+    }
+
+    protected String getStrDateCode() {
+        return strDiaryYear + strDiaryMonth + strDiaryDay;
     }
 
 
@@ -55,9 +85,9 @@ public class DBDateCode implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(numDiaryYear);
-        parcel.writeInt(numDiaryMonth);
-        parcel.writeInt(numDiaryDay);
+        parcel.writeString(strDiaryYear);
+        parcel.writeString(strDiaryMonth);
+        parcel.writeString(strDiaryDay);
         parcel.writeString(strDayName);
     }
 

@@ -19,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     }
     protected DiaryDBHelper diaryDBHelper;
 
-    Calendar calendar;
+    private DBDateCode todayDateCode;
     String[] colHeads = {"date", "idx"};
 
 
@@ -50,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
-        calendar = Calendar.getInstance();
         // 다이어리 아이템 클릭했을 때 작동하는 함수.
         // 당연하겠지만 내가 적은 일기장을 띄워주겠죠? 이건 DB랑 연동해서 작업해봅시다.
         diaryListAdapter.setOnItemClickListener(new DiaryListAdapter.OnItemClickListener() {
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                 // 리스트 기록 상의 날짜를 보내줘야 함
                 DiaryInfo tempInfo = diaryListAdapter.getItem(pos);
                 Bundle bundle = new Bundle();
-                bundle.putInt("date", tempInfo.getDBDateCode());
+                bundle.putString("date", tempInfo.getStrDateCode());
                 bundle.putInt("idx", tempInfo.getNumIdxCode());
                 diaryWriteFragment.setArguments(bundle);
 
@@ -71,12 +71,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // 오늘 날짜를 보내줘야 함
+                long presentTime = System.currentTimeMillis();
+                Date date = new Date(presentTime);
+                updateDateCode(date);
+
+                SQLiteDatabase db = diaryDBHelper.getReadableDatabase();
+                Cursor diaryCursor = db.query("diarylist", colHeads, "date=?",
+                        new String[]{todayDateCode.getStrDateCode()},
+                        null, null, "idx");
+                diaryDBHelper.close();
+
+                int newIdx = 0;
+                try {
+                    if (diaryCursor != null && diaryCursor.moveToFirst()) {
+                        int cursorIdx = diaryCursor.getColumnIndex("idx");
+                        newIdx = diaryCursor.getInt(cursorIdx) + 1;
+                    }
+                }
+                finally {
+                    if(diaryCursor != null) {
+                        diaryCursor.close();
+                    }
+                }
                 Bundle bundle = new Bundle();
-                int nowDBDateCode =
-                        Integer.parseInt(btnYear.getText().toString()) * 10000 +
-                        Integer.parseInt(btnMonth.getText().toString()) * 100;
-                bundle.putInt("date", nowDBDateCode);
-                bundle.putInt("idx", 0); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
+                bundle.putString("date", todayDateCode.getStrDateCode());
+                bundle.putInt("idx", newIdx); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
                 openDiary();
             }
         });
@@ -94,21 +113,36 @@ public class MainActivity extends AppCompatActivity {
 
         diaryWriteFragment = new DiaryWriteFragment();
         diaryDBHelper = new DiaryDBHelper(this);
+        todayDateCode = new DBDateCode();
 
         // MainActivity 기본 세팅
+        updateTime();
 
+    }
+
+    // 앱 내부 시간을 표시하는 부분을 업데이트합니다.
+    public void updateTime() {
         long presentTime = System.currentTimeMillis();
         Date date = new Date(presentTime);
-        String strYear = new SimpleDateFormat("yyyy").format(date);
-        String strMonth = new SimpleDateFormat("mm").format(date);
+        String strYear = new SimpleDateFormat("yyyy", Locale.KOREA).format(date);
+        String strMonth = new SimpleDateFormat("MM", Locale.KOREA).format(date);
 
         btnYear = (Button) findViewById(R.id.btnYear);
         btnYear.setText(strYear);
         btnMonth = (Button) findViewById(R.id.btnMonth);
         btnMonth.setText(strMonth);
 
+        updateDateCode(date);
 
+    }
 
+    // 앱 내부 시간을 가진 DateCode를 업데이트합니다.
+    public void updateDateCode(Date date) {
+        String a = new SimpleDateFormat("yyyy", Locale.KOREA).format(date);
+        todayDateCode.setStrDiaryYear(a);
+        todayDateCode.setStrDiaryMonth(new SimpleDateFormat("MM", Locale.KOREA).format(date));
+        todayDateCode.setStrDiaryDay(new SimpleDateFormat("DD", Locale.KOREA).format(date));
+        todayDateCode.setStrDayName(new SimpleDateFormat("EEE", Locale.ENGLISH).format(date));
     }
 
     public void openDiary() {

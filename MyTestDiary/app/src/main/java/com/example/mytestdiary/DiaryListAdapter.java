@@ -53,12 +53,12 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 DiaryItemViewHolder itemViewHolder = (DiaryItemViewHolder) holder;
                 itemViewHolder.tvTitle.setText(diaryInfo.getStrDiaryTitle());
                 itemViewHolder.tvContent.setText(diaryInfo.getStrDiaryContent());
-                itemViewHolder.tvMonth.setText(diaryInfo.getNumDiaryWriteMonth());
-                itemViewHolder.tvDay.setText(diaryInfo.getNumDiaryWriteDay());
+                itemViewHolder.tvMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
+                itemViewHolder.tvDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
             case 1: //Day Sep Line
                 DaySepLineViewHolder lineViewHolder = (DaySepLineViewHolder) holder;
-                lineViewHolder.tvSepMonth.setText(diaryInfo.getNumDiaryWriteMonth() + "월");
-                lineViewHolder.tvSepDay.setText(diaryInfo.getNumDiaryWriteDay() + "일");
+                lineViewHolder.tvSepMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth() + "월");
+                lineViewHolder.tvSepDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay() + "일");
         }
     }
     // idx에 해당하는 PlaceListProduct를 리턴합니다.
