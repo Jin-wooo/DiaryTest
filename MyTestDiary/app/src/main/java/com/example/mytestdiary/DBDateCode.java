@@ -2,9 +2,10 @@ package com.example.mytestdiary;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class DBDateCode implements Parcelable {
-
+    private final static String LOG_TAG = "DBDateCode";
     private String strDiaryYear;
     private String strDiaryMonth;
     private String strDiaryDay;

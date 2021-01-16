@@ -3,6 +3,7 @@ package com.example.mytestdiary;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.Image;
 import android.os.Bundle;
@@ -21,6 +22,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import javax.microedition.khronos.egl.EGLDisplay;
 
@@ -31,14 +35,21 @@ import javax.microedition.khronos.egl.EGLDisplay;
  */
 public class DiaryWriteFragment extends Fragment {
 
+    // Android`s
+    private Button btnSave;
     private EditText editTextContent;
     private EditText editTextDiaryTitle;
     private ImageButton imgbtnReturn;
     private ImageButton imgbtnOut;
-    private Button btnSave;
-    private SQLiteDatabase database;
+    private TextView tvDayScreen;
+
+    private DiaryDBHelper fragmentDBHelper;
+    private DBDateCode diaryDateCode;
 
     private boolean isTextChanged;
+    String[] frag_colHeads = {"date", "idx", "title", "content"};
+
+
 
     public DiaryWriteFragment() {
         // Required empty public constructor
@@ -56,9 +67,38 @@ public class DiaryWriteFragment extends Fragment {
 
         final ViewGroup rootView = (ViewGroup) inflater.inflate
                 (R.layout.fragment_diary_write, container, false);
-        final InputMethodManager inputMethodManager =
-                (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//        final InputMethodManager inputMethodManager =
+//                (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         final SaveAlertDialog saveAlertDialog = new SaveAlertDialog();
+
+        // Initialize
+        init(rootView);
+
+        // Fragment Appearence Setting
+
+        Bundle bundle = getArguments();
+        diaryDateCode = bundle.getParcelable("date");
+        String diaryIdx = bundle.getString("idx");
+        if (bundle.getBoolean("isWritten")) {
+            // TRUE : Diary has been Written.
+            SQLiteDatabase loadDB = fragmentDBHelper.getReadableDatabase();
+            Cursor loadCursor = loadDB.query("diarylist", frag_colHeads, "date=? AND idx=?",
+                    new String[]{diaryDateCode.getStrDateCode(), diaryIdx}, null, null, null);
+            loadCursor.close();
+        }
+        fragmentDBHelper.close();
+
+        String strDate =
+                diaryDateCode.getStrDiaryYear()  + "." +
+                diaryDateCode.getStrDiaryMonth() + "." +
+                diaryDateCode.getStrDiaryDay()   + " " +
+                diaryDateCode.getStrDayName();
+        tvDayScreen.setText(strDate);
+
+
+
+
+
 
         // SaveAlertDialog Btn Setting
         saveAlertDialog.setOnNoticeDialogListener(new SaveAlertDialog.SaveDialogListener() {
@@ -83,7 +123,6 @@ public class DiaryWriteFragment extends Fragment {
             }
         });
 
-        imgbtnReturn = (ImageButton) rootView.findViewById(R.id.btnReturn);
         imgbtnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,7 +130,6 @@ public class DiaryWriteFragment extends Fragment {
                 mainActivity.closeDiary(); }
         });
 
-        imgbtnOut = (ImageButton) rootView.findViewById(R.id.btnOut);
         imgbtnOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,7 +147,7 @@ public class DiaryWriteFragment extends Fragment {
         btnSave = (Button) rootView.findViewById(R.id.btnSave);
 
 
-        editTextContent = (EditText) rootView.findViewById(R.id.editTextContent);
+
         editTextContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean isFocused) {
@@ -143,7 +181,6 @@ public class DiaryWriteFragment extends Fragment {
             }
         });
 
-        editTextDiaryTitle = (EditText) rootView.findViewById(R.id.editTextDiaryTitle);
         editTextDiaryTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean isFocused) {
@@ -157,4 +194,16 @@ public class DiaryWriteFragment extends Fragment {
 
         return rootView;
     }
+
+    public void init(ViewGroup rootView) {
+
+        btnSave = (Button) rootView.findViewById(R.id.btnSave);
+        editTextDiaryTitle = (EditText) rootView.findViewById(R.id.editTextDiaryTitle);
+        editTextContent = (EditText) rootView.findViewById(R.id.editTextContent);
+        imgbtnReturn = (ImageButton) rootView.findViewById(R.id.btnReturn);
+        imgbtnOut = (ImageButton) rootView.findViewById(R.id.btnOut);
+        tvDayScreen = (TextView) rootView.findViewById(R.id.tvDayScreen);
+        fragmentDBHelper = new DiaryDBHelper(getActivity());
+    }
+
 }

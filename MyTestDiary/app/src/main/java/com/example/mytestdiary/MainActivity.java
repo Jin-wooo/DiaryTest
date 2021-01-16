@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final static int NO_DATE = 0;
     private final static int NO_IDX = -1;
+    private final static String LOG_TAG = "MainActivity";
 
     DiaryWriteFragment diaryWriteFragment;
     FragmentTransaction diaryTransaction;
@@ -35,11 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabNewDiary;
     private Button btnYear;
     private Button btnMonth;
-
-    public DiaryDBHelper getDiaryDBHelper() {
-        return diaryDBHelper;
-    }
-    protected DiaryDBHelper diaryDBHelper;
+    private DiaryDBHelper MainDBHelper;
 
     private DBDateCode todayDateCode;
     String[] colHeads = {"date", "idx"};
@@ -50,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        String a = "AAA";
+        int b = Integer.parseInt(a);
+
         init();
         // 다이어리 아이템 클릭했을 때 작동하는 함수.
         // 당연하겠지만 내가 적은 일기장을 띄워주겠죠? 이건 DB랑 연동해서 작업해봅시다.
@@ -59,8 +60,9 @@ public class MainActivity extends AppCompatActivity {
                 // 리스트 기록 상의 날짜를 보내줘야 함
                 DiaryInfo tempInfo = diaryListAdapter.getItem(pos);
                 Bundle bundle = new Bundle();
-                bundle.putString("date", tempInfo.getStrDateCode());
+                bundle.putParcelable("date", tempInfo.getDbDateCode());
                 bundle.putInt("idx", tempInfo.getNumIdxCode());
+                bundle.putBoolean("isWritten", true);
                 diaryWriteFragment.setArguments(bundle);
 
                 openDiary();
@@ -75,27 +77,31 @@ public class MainActivity extends AppCompatActivity {
                 Date date = new Date(presentTime);
                 updateDateCode(date);
 
-                SQLiteDatabase db = diaryDBHelper.getReadableDatabase();
+                SQLiteDatabase db = MainDBHelper.getReadableDatabase();
                 Cursor diaryCursor = db.query("diarylist", colHeads, "date=?",
                         new String[]{todayDateCode.getStrDateCode()},
                         null, null, "idx");
-                diaryDBHelper.close();
 
-                int newIdx = 0;
+                int newIdx = 0; // 기본적으로는 0이 세팅됨.
                 try {
-                    if (diaryCursor != null && diaryCursor.moveToFirst()) {
+                    if (diaryCursor != null && diaryCursor.getCount() > 0) {
                         int cursorIdx = diaryCursor.getColumnIndex("idx");
                         newIdx = diaryCursor.getInt(cursorIdx) + 1;
                     }
                 }
+                catch (Exception e){
+                    Log.e(LOG_TAG, "fab Click Error");
+                }
                 finally {
-                    if(diaryCursor != null) {
+                    if(diaryCursor != null && diaryCursor.getCount() > 0) {
                         diaryCursor.close();
                     }
                 }
+                MainDBHelper.close();
                 Bundle bundle = new Bundle();
-                bundle.putString("date", todayDateCode.getStrDateCode());
+                bundle.putParcelable("date", todayDateCode);
                 bundle.putInt("idx", newIdx); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
+                bundle.putBoolean("isWritten", false);
                 openDiary();
             }
         });
@@ -112,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         rvDiaryList.setAdapter(diaryListAdapter);
 
         diaryWriteFragment = new DiaryWriteFragment();
-        diaryDBHelper = new DiaryDBHelper(this);
+        MainDBHelper = new DiaryDBHelper(this);
         todayDateCode = new DBDateCode();
 
         // MainActivity 기본 세팅
