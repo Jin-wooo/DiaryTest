@@ -1,8 +1,11 @@
 package com.example.mytestdiary;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 
-public class DiaryInfo {
+public class DiaryInfo implements Parcelable {
     private String strDiaryTitle;
     private String strDiaryContent;
     private DBDateCode dbDateCode;
@@ -10,13 +13,34 @@ public class DiaryInfo {
     private int numIdxCode;
 
 
+    protected DiaryInfo(Parcel in) {
+        strDiaryTitle = in.readString();
+        strDiaryContent = in.readString();
+        dbDateCode = in.readParcelable(DBDateCode.class.getClassLoader());
+        numTypeCode = in.readInt();
+        numIdxCode = in.readInt();
+    }
+
+    public static final Creator<DiaryInfo> CREATOR = new Creator<DiaryInfo>() {
+        @Override
+        public DiaryInfo createFromParcel(Parcel in) {
+            return new DiaryInfo(in);
+        }
+
+        @Override
+        public DiaryInfo[] newArray(int size) {
+            return new DiaryInfo[size];
+        }
+    };
 
     public String getStrDiaryTitle() {
         return strDiaryTitle;
     }
     public void setStrDiaryTitle(String strDiaryTitle) {
-        if (strDiaryTitle.equals(""))
+        if (strDiaryTitle.isEmpty())
             this.strDiaryTitle = "No Title";
+        else if (strDiaryTitle.equals("No Title"))
+            return;
         else
             this.strDiaryTitle = strDiaryTitle;
     }
@@ -25,7 +49,12 @@ public class DiaryInfo {
         return strDiaryContent;
     }
     public void setStrDiaryContent(String strDiaryContent) {
-        this.strDiaryContent = strDiaryContent;
+        if (strDiaryContent.isEmpty())
+            this.strDiaryContent = "No Content";
+        else if (strDiaryContent.equals("No Content"))
+            return;
+        else
+            this.strDiaryContent = strDiaryContent;
     }
 
     public DBDateCode getDbDateCode() {
@@ -58,12 +87,6 @@ public class DiaryInfo {
     }
 
 
-    @NonNull
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
     public DiaryInfo() {
         this.strDiaryTitle = "";
         this.strDiaryContent = "";
@@ -78,5 +101,19 @@ public class DiaryInfo {
         this.dbDateCode = diaryInfo.dbDateCode;
         this.numTypeCode = diaryInfo.numTypeCode;
         this.numIdxCode = diaryInfo.numIdxCode;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(strDiaryTitle);
+        parcel.writeString(strDiaryContent);
+        parcel.writeParcelable(dbDateCode, i);
+        parcel.writeInt(numTypeCode);
+        parcel.writeInt(numIdxCode);
     }
 }

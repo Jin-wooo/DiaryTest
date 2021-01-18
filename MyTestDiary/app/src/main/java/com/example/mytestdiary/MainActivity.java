@@ -37,6 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabNewDiary;
     private Button btnYear;
     private Button btnMonth;
+
+    public DiaryDBHelper getMainDBHelper() {
+        return MainDBHelper;
+    }
+
     private DiaryDBHelper MainDBHelper;
 
     private DBDateCode todayDateCode;
@@ -47,9 +52,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        String a = "AAA";
-        int b = Integer.parseInt(a);
 
         init();
         // 다이어리 아이템 클릭했을 때 작동하는 함수.
@@ -85,23 +87,25 @@ public class MainActivity extends AppCompatActivity {
                 int newIdx = 0; // 기본적으로는 0이 세팅됨.
                 try {
                     if (diaryCursor != null && diaryCursor.getCount() > 0) {
-                        int cursorIdx = diaryCursor.getColumnIndex("idx");
-                        newIdx = diaryCursor.getInt(cursorIdx) + 1;
+                        int cursorIdx;
+                        newIdx = diaryCursor.getInt(diaryCursor.getColumnIndex("idx")) + 1;
                     }
                 }
                 catch (Exception e){
                     Log.e(LOG_TAG, "fab Click Error");
                 }
                 finally {
-                    if(diaryCursor != null && diaryCursor.getCount() > 0) {
+                    if(diaryCursor != null) {
+                        // 내용물이 있든 없든 만든 커서는 닫아야겠죠?
                         diaryCursor.close();
                     }
                 }
                 MainDBHelper.close();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("date", todayDateCode);
-                bundle.putInt("idx", newIdx); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
+                bundle.putString("idx", Integer.toString(newIdx)); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
                 bundle.putBoolean("isWritten", false);
+                diaryWriteFragment.setArguments(bundle);
                 openDiary();
             }
         });
