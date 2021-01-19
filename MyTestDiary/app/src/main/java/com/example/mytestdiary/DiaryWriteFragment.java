@@ -10,6 +10,8 @@ import android.graphics.Color;
 import android.media.Image;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -57,11 +59,31 @@ public class DiaryWriteFragment extends Fragment {
     private boolean mIsTextChanged;
     String[] mFrag_colHeads = {"date", "idx", "title", "content"};
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mEditTextContent.isFocused() || mEditTextDiaryTitle.isFocused()) {
+                    // 작성 중에는 mImgBtnOut과 동일한 기능을 수행합니다.
+                }
+                else {
+                    // 아니면? Return과 동일한 기능, 즉 그냥 나가집니다.
+                    ((MainActivity) getActivity()).closeDiary();
+                }
 
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this,backPressedCallback);
+
+    }
 
     public DiaryWriteFragment() {
         // Required empty public constructor
     }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,7 +105,6 @@ public class DiaryWriteFragment extends Fragment {
         init(rootView);
 
         // Fragment Appearence Setting
-
         Bundle bundle = getArguments();
 //        try {
 //
@@ -100,6 +121,7 @@ public class DiaryWriteFragment extends Fragment {
             SQLiteDatabase loadDB = mfragDBHelper.getReadableDatabase();
             Cursor loadCursor = loadDB.query("diarylist", mFrag_colHeads, "date=? AND idx=?",
                     new String[]{mDiaryDateCode.getStrDateCode(), mDiaryIdx}, null, null, null);
+            showResult(loadCursor);
 
             String strTitle = loadCursor.getString(loadCursor.getColumnIndex("title"));
             String strContent = loadCursor.getString(loadCursor.getColumnIndex("content"));
@@ -125,8 +147,10 @@ public class DiaryWriteFragment extends Fragment {
                 setWriteMode(false);
                 // 나가는 키가 추가되면서 키보드가 자동적으로 포커스를 잃는다. 이거면 대충 키보드를 없애는 기능은 가능해지지 않을까?
 
-                mEditTextContent.clearFocus();
                 mEditTextDiaryTitle.clearFocus();
+                mEditTextDiaryTitle.setText(null);
+                mEditTextContent.clearFocus();
+                mEditTextContent.setText(null);
                 mIsTextChanged = false;
 
                 saveAlertDialog.dismiss();
@@ -138,14 +162,17 @@ public class DiaryWriteFragment extends Fragment {
             }
         });
 
-        mImgbtnOut.setOnClickListener(new View.OnClickListener() {
+        // 일기장 기록 모드에서 빠져나오는 버튼
+        mImgbtnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((MainActivity) getActivity()).closeDiary();
             }
         });
 
-        mImgbtnReturn.setOnClickListener(new View.OnClickListener() {
+
+        // 일기장 화면에서 빠져나오는 버튼
+        mImgbtnOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
@@ -190,14 +217,14 @@ public class DiaryWriteFragment extends Fragment {
                     }
                     mfragDBHelper.close();
                 }
-                else {
-                    // 근데 진자루 내용이 없으면? 뭘 처리하죠?
-                }
-                mEditTextDiaryTitle.clearFocus();
-                mEditTextContent.clearFocus();
+//                else {
+//                    // 근데 진자루 내용이 없으면? 뭘 처리하죠?
+//                }
                 setWriteMode(false);
                 inputMethodManager.hideSoftInputFromWindow
-                        (getActivity().getCurrentFocus().getWindowToken(), inputMethodManager.HIDE_NOT_ALWAYS);
+                        (getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                mEditTextDiaryTitle.clearFocus();
+                mEditTextContent.clearFocus();
             }
         });
 
@@ -212,17 +239,17 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 Log.d("EditText", "Before Called");
-                Log.d("EditText", "start : " + Integer.toString(start));
-                Log.d("EditText", "count : " + Integer.toString(count));
-                Log.d("EditText", "after : " + Integer.toString(after));
+                Log.d("EditText", "start : " + start);
+                Log.d("EditText", "count : " + count);
+                Log.d("EditText", "after : " + after);
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 Log.d("EditText", "Changed Called");
-                Log.d("EditText", "start : " + Integer.toString(start));
-                Log.d("EditText", "before : " + Integer.toString(before));
-                Log.d("EditText", "count : " + Integer.toString(count));
+                Log.d("EditText", "start : " + start);
+                Log.d("EditText", "before : " + before);
+                Log.d("EditText", "count : " + count);
                 mIsTextChanged = true;
             }
 
@@ -268,4 +295,12 @@ public class DiaryWriteFragment extends Fragment {
         }
     }
 
+    private void showResult(Cursor cur) {
+        int title_col = cur.getColumnIndex("title");
+        int ctt_col = cur.getColumnIndex("content");
+        while (cur.moveToNext()) {
+            Log.d(LOG_TAG, cur.getString(title_col));
+            Log.d(LOG_TAG, cur.getString(ctt_col));
+        }
+    }
 }

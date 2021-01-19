@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.FrameMetrics;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DBDateCode todayDateCode;
     String[] colHeads = {"date", "idx"};
+    private long backKeyPressedTime;
 
 
     @Override
@@ -109,6 +111,19 @@ public class MainActivity extends AppCompatActivity {
                 openDiary();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+            backKeyPressedTime = System.currentTimeMillis();
+            Toast.makeText(this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            finish();
+            System.exit(0);
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
     }
 
     private void init() {
