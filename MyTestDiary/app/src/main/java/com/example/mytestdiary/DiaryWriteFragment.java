@@ -67,9 +67,11 @@ public class DiaryWriteFragment extends Fragment {
             public void handleOnBackPressed() {
                 if (mEditTextContent.isFocused() || mEditTextDiaryTitle.isFocused()) {
                     // 작성 중에는 mImgBtnOut과 동일한 기능을 수행합니다.
+                    Log.d(LOG_TAG, "OUTED");
                 }
                 else {
                     // 아니면? Return과 동일한 기능, 즉 그냥 나가집니다.
+                    Log.d(LOG_TAG, "ReturnED");
                     ((MainActivity) getActivity()).closeDiary();
                 }
 
@@ -100,12 +102,16 @@ public class DiaryWriteFragment extends Fragment {
         final InputMethodManager inputMethodManager =
                 (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         final SaveAlertDialog saveAlertDialog = new SaveAlertDialog();
+        Bundle bundle = getArguments();
 
         // Initialize
         init(rootView);
 
+        // 다이어리 초기화
+        mEditTextDiaryTitle.setText(null);
+        mEditTextContent.setText(null);
+
         // Fragment Appearence Setting
-        Bundle bundle = getArguments();
 //        try {
 //
 //        }
@@ -166,7 +172,9 @@ public class DiaryWriteFragment extends Fragment {
         mImgbtnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).closeDiary();
+//                ((MainActivity) getActivity()).closeDiary();
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -273,9 +281,9 @@ public class DiaryWriteFragment extends Fragment {
     public void init(ViewGroup rootView) {
 
         mBtnSave = (Button) rootView.findViewById(R.id.btnSave);
-        mEditTextDiaryTitle = (EditText) rootView.findViewById(R.id.editTextDiaryTitle);
-        mEditTextContent = (EditText) rootView.findViewById(R.id.editTextContent);
-        mImgbtnReturn = (ImageButton) rootView.findViewById(R.id.btnReturn);
+        mEditTextDiaryTitle = rootView.findViewById(R.id.editTextDiaryTitle);
+        mEditTextContent = rootView.findViewById(R.id.editTextContent);
+        mImgbtnReturn = rootView.findViewById(R.id.btnReturn);
         mImgbtnOut = (ImageButton) rootView.findViewById(R.id.btnOut);
         mTvDayScreen = (TextView) rootView.findViewById(R.id.tvDayScreen);
         mfragDBHelper = ((MainActivity) getActivity()).getMainDBHelper();

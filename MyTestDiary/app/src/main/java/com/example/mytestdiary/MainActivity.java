@@ -1,5 +1,7 @@
 package com.example.mytestdiary;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -49,6 +51,21 @@ public class MainActivity extends AppCompatActivity {
     String[] colHeads = {"date", "idx"};
     private long backKeyPressedTime;
 
+
+    OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+                backKeyPressedTime = System.currentTimeMillis();
+                Toast.makeText(MainActivity.this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                finish();
+                System.exit(0);
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,18 +130,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
-            backKeyPressedTime = System.currentTimeMillis();
-            Toast.makeText(this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            finish();
-            System.exit(0);
-            android.os.Process.killProcess(android.os.Process.myPid());
-        }
-    }
 
     private void init() {
         // 클래스 변수 세팅
@@ -143,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         // MainActivity 기본 세팅
         updateTime();
 
+        getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
     }
 
     // 앱 내부 시간을 표시하는 부분을 업데이트합니다.
