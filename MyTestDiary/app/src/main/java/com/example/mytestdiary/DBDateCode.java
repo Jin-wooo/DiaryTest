@@ -1,5 +1,6 @@
 package com.example.mytestdiary;
 
+import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -63,6 +64,28 @@ public class DBDateCode implements Parcelable {
         this.strDayName = code.strDayName;
     }
 
+    public DBDateCode(String code) {
+        if (code.length() != 8)
+            new DBDateCode();
+        else {
+            this.strDiaryYear = code.substring(0, 3);
+            this.strDiaryMonth = code.substring(4, 5);
+            this.strDiaryDay = code.substring(6, 7);
+        }
+        this.strDayName = "";
+    }
+
+    public DBDateCode(String code, String DayName) {
+        if (code.length() != 8)
+            new DBDateCode();
+        else {
+            this.strDiaryYear = code.substring(0, 3);
+            this.strDiaryMonth = code.substring(4, 5);
+            this.strDiaryDay = code.substring(6, 7);
+        }
+        this.strDayName = DayName;
+    }
+
     public DBDateCode() {
         this.strDiaryYear = "";
         this.strDiaryMonth = "";
@@ -70,13 +93,35 @@ public class DBDateCode implements Parcelable {
         this.strDayName = "";
     }
 
-    protected int getDateCode() {
+    protected int getNumDateCode() {
         return Integer.parseInt(strDiaryYear + strDiaryMonth + strDiaryDay);
     }
 
     protected String getStrDateCode() {
         return strDiaryYear + strDiaryMonth + strDiaryDay;
     }
+
+    protected void setStrDateCode(String code) {
+        if (code.length() != 8)
+            new DBDateCode();
+        else {
+            this.strDiaryYear = code.substring(0, 3);
+            this.strDiaryMonth = code.substring(4, 5);
+            this.strDiaryDay = code.substring(6, 7);
+        }
+    }
+
+    protected void setStrDateCode(String code, String dayName) {
+        if (code.length() != 8)
+            new DBDateCode();
+        else {
+            this.strDiaryYear = code.substring(0, 3);
+            this.strDiaryMonth = code.substring(4, 5);
+            this.strDiaryDay = code.substring(6, 7);
+        }
+        this.strDayName = dayName;
+    }
+
 
 
     @Override

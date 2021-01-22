@@ -78,12 +78,15 @@ public class DiaryInfo implements Parcelable {
         this.numIdxCode = numIdxCode;
     }
 
-    public int getDateCode() {
-        return dbDateCode.getDateCode();
+    public int getNumDateCode() {
+        return dbDateCode.getNumDateCode();
     }
-
     public String getStrDateCode() {
         return dbDateCode.getStrDateCode();
+    }
+    public void setStrDateCode(String code) { this.dbDateCode.setStrDateCode(code); }
+    public void setStrDateCode(String code, String dayName) {
+        this.dbDateCode.setStrDateCode(code, dayName);
     }
 
 

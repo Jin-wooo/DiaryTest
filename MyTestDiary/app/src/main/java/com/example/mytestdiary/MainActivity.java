@@ -8,9 +8,11 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.FrameMetrics;
@@ -68,11 +70,49 @@ public class MainActivity extends AppCompatActivity {
     };
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, "onStart");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(LOG_TAG, "onRestart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, "onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, "onDestroy");
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(LOG_TAG, "onCreate");
 
         init();
+        setDiaryList();
         // 다이어리 아이템 클릭했을 때 작동하는 함수.
         // 당연하겠지만 내가 적은 일기장을 띄워주겠죠? 이건 DB랑 연동해서 작업해봅시다.
         diaryListAdapter.setOnItemClickListener(new DiaryListAdapter.OnItemClickListener() {
@@ -99,14 +139,14 @@ public class MainActivity extends AppCompatActivity {
                 updateDateCode(date);
 
                 SQLiteDatabase db = MainDBHelper.getReadableDatabase();
-                Cursor diaryCursor = db.query("diarylist", colHeads, "date=?",
+                Cursor diaryCursor = db.query("diarylist", getResources().getStringArray(R.array.all_column_names), "date=?",
                         new String[]{todayDateCode.getStrDateCode()},
                         null, null, "idx");
+                showResult(diaryCursor);
 
                 int newIdx = 0; // 기본적으로는 0이 세팅됨.
                 try {
                     if (diaryCursor != null && diaryCursor.getCount() > 0) {
-                        int cursorIdx;
                         newIdx = diaryCursor.getInt(diaryCursor.getColumnIndex("idx")) + 1;
                     }
                 }
@@ -122,14 +162,13 @@ public class MainActivity extends AppCompatActivity {
                 MainDBHelper.close();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("date", todayDateCode);
-                bundle.putString("idx", Integer.toString(newIdx)); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
+                bundle.putInt("idx", newIdx); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
                 bundle.putBoolean("isWritten", false);
                 diaryWriteFragment.setArguments(bundle);
                 openDiary();
             }
         });
     }
-
 
     private void init() {
         // 클래스 변수 세팅
@@ -169,8 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 앱 내부 시간을 가진 DateCode를 업데이트합니다.
     public void updateDateCode(Date date) {
-        String a = new SimpleDateFormat("yyyy", Locale.KOREA).format(date);
-        todayDateCode.setStrDiaryYear(a);
+        todayDateCode.setStrDiaryYear(new SimpleDateFormat("yyyy", Locale.KOREA).format(date));
         todayDateCode.setStrDiaryMonth(new SimpleDateFormat("MM", Locale.KOREA).format(date));
         todayDateCode.setStrDiaryDay(new SimpleDateFormat("DD", Locale.KOREA).format(date));
         todayDateCode.setStrDayName(new SimpleDateFormat("EEE", Locale.ENGLISH).format(date));
@@ -180,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
         fabNewDiary.hide();
         diaryTransaction = getSupportFragmentManager().beginTransaction();
         diaryTransaction.add(R.id.containerLayout, diaryWriteFragment);
+        diaryTransaction.addToBackStack(null);
         diaryTransaction.commit();
     }
 
@@ -188,5 +227,55 @@ public class MainActivity extends AppCompatActivity {
         diaryTransaction = getSupportFragmentManager().beginTransaction();
         diaryTransaction.remove(diaryWriteFragment);
         diaryTransaction.commit();
+    }
+
+    private void setDiaryList() {
+        SQLiteDatabase database = MainDBHelper.getReadableDatabase();
+        Cursor setCursor = database.query("diarylist",
+                getResources().getStringArray(R.array.all_column_names), null,
+                null, null, null, null);
+
+        String setDate, setTitle, setContent, setDayName;
+        int setIdx;
+        DiaryInfo setInfo = new DiaryInfo();
+
+        while (setCursor.moveToNext()) {
+            setDate = setCursor.getString(setCursor.getColumnIndex("date"));
+            setIdx = setCursor.getInt(setCursor.getColumnIndex("idx"));
+            setTitle = setCursor.getString(setCursor.getColumnIndex("title"));
+//                    .substring(0, getResources().getInteger(R.integer.title_max_length));
+            setContent = setCursor.getString(setCursor.getColumnIndex("content"));
+//                    .substring(0, getResources().getInteger(R.integer.content_max_length));
+            setDayName = setCursor.getString(setCursor.getColumnIndex("dayname"));
+
+            setInfo.setStrDateCode(setDate, setDayName);
+            setInfo.setNumIdxCode(setIdx);
+            setInfo.setStrDiaryTitle(setTitle);
+            setInfo.setStrDiaryContent(setContent);
+
+            diaryListAdapter.setItem(setInfo);
+        }
+        diaryListAdapter.notifyDataSetChanged();
+
+
+    }
+
+    public void setListItem(DiaryInfo info) {
+        diaryListAdapter.setItem(info);
+        diaryListAdapter.notifyDataSetChanged();
+    }
+
+    private void showResult(Cursor cur) {
+        int date = cur.getColumnIndex("date");
+        int idx = cur.getColumnIndex("idx");
+        int title_col = cur.getColumnIndex("title");
+        int ctt_col = cur.getColumnIndex("content");
+        while (cur.moveToNext()) {
+            Log.d(LOG_TAG, "Now In DB : ");
+            Log.d(LOG_TAG, "date : " + cur.getString(date));
+            Log.d(LOG_TAG, "idx : " + cur.getString(idx));
+            Log.d(LOG_TAG, "Title : " + cur.getString(title_col));
+            Log.d(LOG_TAG, "Content : " + cur.getString(ctt_col));
+        }
     }
 }

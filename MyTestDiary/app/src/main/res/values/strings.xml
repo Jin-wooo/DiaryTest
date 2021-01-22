@@ -4,4 +4,16 @@
     <string name="save_caution_2">저장하지 않은 내용은 사라집니다.</string>
     <string name="gonna_out">나가기</string>
     <string name="cancel">취소</string>
+
+
+    <string-array name="all_column_names">
+        <item>date</item>
+        <item>idx</item>
+        <item>title</item>
+        <item>content</item>
+    </string-array>
+    <string-array name="send_column_names">
+        <item>date</item>
+        <item>idx</item>
+    </string-array>
 </resources>

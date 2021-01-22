@@ -54,7 +54,7 @@ public class DiaryWriteFragment extends Fragment {
     private DiaryDBHelper mfragDBHelper;
     private DBDateCode mDiaryDateCode;
 
-    private String mDiaryIdx;
+    private int mDiaryIdx;
     private boolean mIsWritten;
     private boolean mIsTextChanged;
     String[] mFrag_colHeads = {"date", "idx", "title", "content"};
@@ -74,18 +74,14 @@ public class DiaryWriteFragment extends Fragment {
                     Log.d(LOG_TAG, "ReturnED");
                     ((MainActivity) getActivity()).closeDiary();
                 }
-
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this,backPressedCallback);
-
     }
 
     public DiaryWriteFragment() {
         // Required empty public constructor
     }
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,13 +98,12 @@ public class DiaryWriteFragment extends Fragment {
         final InputMethodManager inputMethodManager =
                 (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         final SaveAlertDialog saveAlertDialog = new SaveAlertDialog();
-        Bundle bundle = getArguments();
 
         // Initialize
         init(rootView);
 
         // 다이어리 초기화
-        mEditTextDiaryTitle.setText(null);
+        mEditTextDiaryTitle.clearComposingText();
         mEditTextContent.setText(null);
 
         // Fragment Appearence Setting
@@ -119,16 +114,22 @@ public class DiaryWriteFragment extends Fragment {
 //
 //        }
         // getParcelable이 Exception을 일으킬 수 있으니까, 에러처리 해두기.
+        Bundle bundle = getArguments();
         mDiaryDateCode = bundle.getParcelable("date");
-        mDiaryIdx = bundle.getString("idx");
+        mDiaryIdx = bundle.getInt("idx");
         mIsWritten = bundle.getBoolean("isWritten");
         if (mIsWritten) {
             // TRUE : Diary has been Written.
             SQLiteDatabase loadDB = mfragDBHelper.getReadableDatabase();
             Cursor loadCursor = loadDB.query("diarylist", mFrag_colHeads, "date=? AND idx=?",
-                    new String[]{mDiaryDateCode.getStrDateCode(), mDiaryIdx}, null, null, null);
+                    new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)}, null, null, null);
             showResult(loadCursor);
+            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("title")));
+            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("content")));
+            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("date")));
+            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("idx")));
 
+            loadCursor.moveToFirst();
             String strTitle = loadCursor.getString(loadCursor.getColumnIndex("title"));
             String strContent = loadCursor.getString(loadCursor.getColumnIndex("content"));
             mEditTextDiaryTitle.setText(strTitle);
@@ -172,9 +173,9 @@ public class DiaryWriteFragment extends Fragment {
         mImgbtnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                ((MainActivity) getActivity()).closeDiary();
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                startActivity(intent);
+                ((MainActivity) getActivity()).closeDiary();
+//                Intent intent = new Intent(getActivity(), MainActivity.class);
+//                startActivity(intent);
             }
         });
 
@@ -201,26 +202,40 @@ public class DiaryWriteFragment extends Fragment {
                 DiaryInfo sendInfo = new DiaryInfo();
                 sendInfo.setDbDateCode(mDiaryDateCode);
 
+                // DB에 데이터를 저장하는 부분
                 String editedTitle = mEditTextDiaryTitle.getText().toString();
                 String editedContent = mEditTextContent.getText().toString();
                 if (!(editedTitle.isEmpty() && editedContent.isEmpty())) {
                     // 둘 다 비었으면 데이터 저장을 웨함? 실행할 필요 없고, 데이터 전달도 필요가 없겠죠?
-                    sendInfo.setStrDiaryTitle(editedTitle);
-                    sendInfo.setStrDiaryContent(editedContent);
+
+                    // 제목 적당히 짜르기
+                    if (editedTitle.length() > 15)
+                        sendInfo.setStrDiaryTitle(editedTitle.substring(0, 14));
+                    else
+                        sendInfo.setStrDiaryTitle(editedTitle);
+
+                    // 내용도 적당히 짜르기
+                    if (editedContent.length() > 25)
+                        sendInfo.setStrDiaryContent(editedContent.substring(0, 24));
+                    else
+                        sendInfo.setStrDiaryContent(editedContent);
+
                     sendInfo.setNumTypeCode(DIARY_ITEM);
+                    sendInfo.setNumIdxCode(mDiaryIdx);
 
                     ContentValues saveVal = new ContentValues();
-                    SQLiteDatabase saveDB;
-                    saveDB = mfragDBHelper.getWritableDatabase();
-                    saveVal.put("title", mEditTextContent.getText().toString());
-                    saveVal.put("content", mEditTextContent.getText().toString());
+                    SQLiteDatabase saveDB = mfragDBHelper.getWritableDatabase();
+                    saveVal.put("title", editedTitle);
+                    saveVal.put("content", editedContent);
                     if (mIsWritten) {
-                        // 이미 해당 날짜, 해당 IDX에 적힌 글을 불러왔었다면, 해당 부분을 Update해야한다.
+                        // 이미 해당 날짜, 해당 IDX에 적힌 글을 불러왔었다면, 해당 부분을 Update 해야 한다.
                         saveDB.update("diarylist", saveVal, "date=? AND idx=?",
-                                new String[]{mDiaryDateCode.getStrDateCode(), mDiaryIdx});
+                                new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)});
                     }
                     else {
                         // 아니라구요? 그럼 Insert하새오
+                        saveVal.put("date", mDiaryDateCode.getNumDateCode());
+                        saveVal.put("idx", mDiaryIdx);
                         saveDB.insert("diarylist", null, saveVal);
                     }
                     mfragDBHelper.close();
@@ -228,6 +243,10 @@ public class DiaryWriteFragment extends Fragment {
 //                else {
 //                    // 근데 진자루 내용이 없으면? 뭘 처리하죠?
 //                }
+                // 리스트에 삽입하기
+                ((MainActivity) getActivity()).setListItem(sendInfo);
+
+                // 저장 후 마지막 후처리
                 setWriteMode(false);
                 inputMethodManager.hideSoftInputFromWindow
                         (getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
@@ -304,11 +323,16 @@ public class DiaryWriteFragment extends Fragment {
     }
 
     private void showResult(Cursor cur) {
+        int date = cur.getColumnIndex("date");
+        int idx = cur.getColumnIndex("idx");
         int title_col = cur.getColumnIndex("title");
         int ctt_col = cur.getColumnIndex("content");
         while (cur.moveToNext()) {
-            Log.d(LOG_TAG, cur.getString(title_col));
-            Log.d(LOG_TAG, cur.getString(ctt_col));
+            Log.d(LOG_TAG, "Now In DB : ");
+            Log.d(LOG_TAG, "date : " + cur.getString(date));
+            Log.d(LOG_TAG, "idx : " + cur.getString(idx));
+            Log.d(LOG_TAG, "Title : " + cur.getString(title_col));
+            Log.d(LOG_TAG, "Content : " + cur.getString(ctt_col));
         }
     }
 }
