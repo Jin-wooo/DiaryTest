@@ -11,6 +11,7 @@
         <item>idx</item>
         <item>title</item>
         <item>content</item>
+        <item>dayname</item>
     </string-array>
     <string-array name="send_column_names">
         <item>date</item>

@@ -1,9 +1,9 @@
-package com.example.mytestdiary;
+package com.example.mytestdiary.DiaryList;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
+import com.example.mytestdiary.DBDateCode;
 
 public class DiaryInfo implements Parcelable {
     private String strDiaryTitle;

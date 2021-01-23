@@ -1,13 +1,15 @@
-package com.example.mytestdiary;
+package com.example.mytestdiary.DiaryList;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.mytestdiary.R;
 
 import java.util.ArrayList;
 
@@ -50,11 +52,14 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         final DiaryInfo diaryInfo = mList.get(position);
         switch (diaryInfo.getNumTypeCode()) {
             case 0: //item
+                Log.d("Adapter", "Code Check : " + diaryInfo.getStrDateCode());
                 DiaryItemViewHolder itemViewHolder = (DiaryItemViewHolder) holder;
                 itemViewHolder.tvTitle.setText(diaryInfo.getStrDiaryTitle());
                 itemViewHolder.tvContent.setText(diaryInfo.getStrDiaryContent());
                 itemViewHolder.tvMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
+                Log.d("Adapter", "Setting Month : " + diaryInfo.getDbDateCode().getStrDiaryMonth());
                 itemViewHolder.tvDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
+                Log.d("Adapter", "Setting Day : " + diaryInfo.getDbDateCode().getStrDiaryDay());
                 break;
             case 1: //Day Sep Line
                 DaySepLineViewHolder lineViewHolder = (DaySepLineViewHolder) holder;

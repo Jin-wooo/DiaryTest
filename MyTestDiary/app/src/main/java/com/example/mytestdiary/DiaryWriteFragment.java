@@ -1,20 +1,14 @@
 package com.example.mytestdiary;
 
-import android.Manifest;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,9 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import javax.microedition.khronos.egl.EGLDisplay;
+import com.example.mytestdiary.DiaryList.DiaryInfo;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,7 +49,7 @@ public class DiaryWriteFragment extends Fragment {
     private int mDiaryIdx;
     private boolean mIsWritten;
     private boolean mIsTextChanged;
-    String[] mFrag_colHeads = {"date", "idx", "title", "content"};
+    String[] mFrag_colHeads;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -102,6 +94,7 @@ public class DiaryWriteFragment extends Fragment {
         // Initialize
         init(rootView);
 
+
         // 다이어리 초기화
         mEditTextDiaryTitle.clearComposingText();
         mEditTextContent.setText(null);
@@ -120,14 +113,12 @@ public class DiaryWriteFragment extends Fragment {
         mIsWritten = bundle.getBoolean("isWritten");
         if (mIsWritten) {
             // TRUE : Diary has been Written.
-            SQLiteDatabase loadDB = mfragDBHelper.getReadableDatabase();
-            Cursor loadCursor = loadDB.query("diarylist", mFrag_colHeads, "date=? AND idx=?",
-                    new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)}, null, null, null);
-            showResult(loadCursor);
-            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("title")));
-            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("content")));
-            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("date")));
-            Log.d(LOG_TAG, Integer.toString(loadCursor.getColumnIndex("idx")));
+            SQLiteDatabase loadDB = mfragDBHelper.getWritableDatabase();
+            Cursor loadCursor;
+//                    = loadDB.query("diarylist", mFrag_colHeads, "date=? and idx=?",
+//                    new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)}, null, null, null);
+            loadCursor = loadDB.rawQuery("SELECT * from diarylist WHERE date = '"+mDiaryDateCode.getStrDateCode()+"' AND idx = '"+Integer.toString(mDiaryIdx)+"' ", null);
+            ((MainActivity) getActivity()).showResult(loadCursor);
 
             loadCursor.moveToFirst();
             String strTitle = loadCursor.getString(loadCursor.getColumnIndex("title"));
@@ -236,6 +227,7 @@ public class DiaryWriteFragment extends Fragment {
                         // 아니라구요? 그럼 Insert하새오
                         saveVal.put("date", mDiaryDateCode.getNumDateCode());
                         saveVal.put("idx", mDiaryIdx);
+                        saveVal.put("dayname", mDiaryDateCode.getStrDayName());
                         saveDB.insert("diarylist", null, saveVal);
                     }
                     mfragDBHelper.close();
@@ -265,18 +257,18 @@ public class DiaryWriteFragment extends Fragment {
         mEditTextContent.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
-                Log.d("EditText", "Before Called");
-                Log.d("EditText", "start : " + start);
-                Log.d("EditText", "count : " + count);
-                Log.d("EditText", "after : " + after);
+//                Log.d("EditText", "Before Called");
+//                Log.d("EditText", "start : " + start);
+//                Log.d("EditText", "count : " + count);
+//                Log.d("EditText", "after : " + after);
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                Log.d("EditText", "Changed Called");
-                Log.d("EditText", "start : " + start);
-                Log.d("EditText", "before : " + before);
-                Log.d("EditText", "count : " + count);
+//                Log.d("EditText", "Changed Called");
+//                Log.d("EditText", "start : " + start);
+//                Log.d("EditText", "before : " + before);
+//                Log.d("EditText", "count : " + count);
                 mIsTextChanged = true;
             }
 
@@ -306,6 +298,8 @@ public class DiaryWriteFragment extends Fragment {
         mImgbtnOut = (ImageButton) rootView.findViewById(R.id.btnOut);
         mTvDayScreen = (TextView) rootView.findViewById(R.id.tvDayScreen);
         mfragDBHelper = ((MainActivity) getActivity()).getMainDBHelper();
+
+        mFrag_colHeads = getResources().getStringArray(R.array.all_column_names);
     }
 
     public void setWriteMode(boolean isWriteMode) {

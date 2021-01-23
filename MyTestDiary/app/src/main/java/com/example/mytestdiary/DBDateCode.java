@@ -115,9 +115,9 @@ public class DBDateCode implements Parcelable {
         if (code.length() != 8)
             new DBDateCode();
         else {
-            this.strDiaryYear = code.substring(0, 3);
-            this.strDiaryMonth = code.substring(4, 5);
-            this.strDiaryDay = code.substring(6, 7);
+            this.strDiaryYear = code.substring(0, 4);
+            this.strDiaryMonth = code.substring(4, 6);
+            this.strDiaryDay = code.substring(6, 8);
         }
         this.strDayName = dayName;
     }
