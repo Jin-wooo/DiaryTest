@@ -93,15 +93,15 @@ public class DBDateCode implements Parcelable {
         this.strDayName = "";
     }
 
-    protected int getNumDateCode() {
+    public int getNumDateCode() {
         return Integer.parseInt(strDiaryYear + strDiaryMonth + strDiaryDay);
     }
 
-    protected String getStrDateCode() {
+    public String getStrDateCode() {
         return strDiaryYear + strDiaryMonth + strDiaryDay;
     }
 
-    protected void setStrDateCode(String code) {
+    public void setStrDateCode(String code) {
         if (code.length() != 8)
             new DBDateCode();
         else {
@@ -111,7 +111,7 @@ public class DBDateCode implements Parcelable {
         }
     }
 
-    protected void setStrDateCode(String code, String dayName) {
+    public void setStrDateCode(String code, String dayName) {
         if (code.length() != 8)
             new DBDateCode();
         else {

@@ -52,19 +52,17 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         final DiaryInfo diaryInfo = mList.get(position);
         switch (diaryInfo.getNumTypeCode()) {
             case 0: //item
-                Log.d("Adapter", "Code Check : " + diaryInfo.getStrDateCode());
                 DiaryItemViewHolder itemViewHolder = (DiaryItemViewHolder) holder;
                 itemViewHolder.tvTitle.setText(diaryInfo.getStrDiaryTitle());
                 itemViewHolder.tvContent.setText(diaryInfo.getStrDiaryContent());
                 itemViewHolder.tvMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
-                Log.d("Adapter", "Setting Month : " + diaryInfo.getDbDateCode().getStrDiaryMonth());
                 itemViewHolder.tvDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
-                Log.d("Adapter", "Setting Day : " + diaryInfo.getDbDateCode().getStrDiaryDay());
                 break;
             case 1: //Day Sep Line
                 DaySepLineViewHolder lineViewHolder = (DaySepLineViewHolder) holder;
-                lineViewHolder.tvSepMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth() + "월");
-                lineViewHolder.tvSepDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay() + "일");
+                lineViewHolder.tvSepMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
+                lineViewHolder.tvSepDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
+                lineViewHolder.tvSepWeekDay.setText(diaryInfo.getDbDateCode().getStrDayName());
                 break;
 
         }
@@ -110,11 +108,13 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public class DaySepLineViewHolder extends RecyclerView.ViewHolder {
         protected TextView tvSepMonth;
         protected TextView tvSepDay;
+        protected TextView tvSepWeekDay;
 
         public DaySepLineViewHolder(@NonNull View itemView) {
             super(itemView);
             this.tvSepMonth = (TextView) itemView.findViewById(R.id.tvSepMonth);
             this.tvSepDay = (TextView) itemView.findViewById(R.id.tvSepDay);
+            this.tvSepWeekDay = (TextView) itemView.findViewById(R.id.tvSepWeekday);
         }
     }
 

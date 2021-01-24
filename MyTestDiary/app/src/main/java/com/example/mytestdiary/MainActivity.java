@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.mytestdiary.DiaryList.DiaryInfo;
 import com.example.mytestdiary.DiaryList.DiaryListAdapter;
+import com.example.mytestdiary.DiaryList.DiaryListDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final static int NO_DATE = 0;
     private final static int NO_IDX = -1;
+    private final static int DIARY_ITEM = 0;
+    private final static int DAY_SEP_LINE = 1;
     private final static String LOG_TAG = "MainActivity";
 
     DiaryWriteFragment diaryWriteFragment;
@@ -136,8 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 Cursor diaryCursor = db.query("diarylist", getResources().getStringArray(R.array.all_column_names), "date=?",
                         new String[]{todayDateCode.getStrDateCode()},
                         null, null, "idx DESC");
-                showResult(diaryCursor);
-                diaryCursor.moveToFirst();
+//                showResult(diaryCursor);
 
                 int newIdx = 0; // 기본적으로는 0이 세팅됨.
                 try {
@@ -170,6 +172,9 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayoutManager diaryListManager = new LinearLayoutManager(this);
         rvDiaryList.setLayoutManager(diaryListManager);
+        DiaryListDecoration diaryListDecoration = new DiaryListDecoration(15);
+        rvDiaryList.addItemDecoration(diaryListDecoration);
+
 
         diaryListAdapter = new DiaryListAdapter();
         rvDiaryList.setAdapter(diaryListAdapter);
@@ -244,6 +249,15 @@ public class MainActivity extends AppCompatActivity {
 //                    .substring(0, getResources().getInteger(R.integer.content_max_length));
             setDayName = setCursor.getString(setCursor.getColumnIndex("dayname"));
 
+            // 그 날의 맨 처음 일기라면, 날짜분리선을 달아줘야 한다.
+            if (setIdx == 0) {
+                DiaryInfo sepInfo = new DiaryInfo();
+                sepInfo.setStrDateCode(setDate, setDayName);
+                sepInfo.setNumTypeCode(DAY_SEP_LINE);
+
+                diaryListAdapter.setItem(sepInfo);
+            }
+
             Log.d(LOG_TAG, "< setDiary setting DB > ");
             Log.d(LOG_TAG, "date : " + setDate);
             Log.d(LOG_TAG, "idx : " + setIdx);
@@ -255,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
             setInfo.setNumIdxCode(setIdx);
             setInfo.setStrDiaryTitle(setTitle);
             setInfo.setStrDiaryContent(setContent);
-            setInfo.setNumTypeCode(0);
+            setInfo.setNumTypeCode(DIARY_ITEM);
 
             diaryListAdapter.setItem(setInfo);
         }
@@ -265,6 +279,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setListItem(DiaryInfo info) {
+        if (info.getNumIdxCode() == 0) {
+            DiaryInfo sepInfo = new DiaryInfo();
+            sepInfo.setStrDateCode(info.getStrDateCode(), info.getDbDateCode().getStrDayName());
+            sepInfo.setNumTypeCode(DAY_SEP_LINE);
+
+            diaryListAdapter.setItem(sepInfo);
+        }
         diaryListAdapter.setItem(info);
         diaryListAdapter.notifyDataSetChanged();
     }
@@ -283,5 +304,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d(LOG_TAG, "Content : " + cur.getString(ctt_col));
             Log.d(LOG_TAG, "Dayname : " + cur.getString(namecol));
         }
+        cur.moveToFirst();
     }
 }

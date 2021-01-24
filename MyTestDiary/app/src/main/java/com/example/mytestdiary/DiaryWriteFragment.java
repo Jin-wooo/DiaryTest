@@ -118,7 +118,7 @@ public class DiaryWriteFragment extends Fragment {
 //                    = loadDB.query("diarylist", mFrag_colHeads, "date=? and idx=?",
 //                    new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)}, null, null, null);
             loadCursor = loadDB.rawQuery("SELECT * from diarylist WHERE date = '"+mDiaryDateCode.getStrDateCode()+"' AND idx = '"+Integer.toString(mDiaryIdx)+"' ", null);
-            ((MainActivity) getActivity()).showResult(loadCursor);
+//            ((MainActivity) getActivity()).showResult(loadCursor);
 
             loadCursor.moveToFirst();
             String strTitle = loadCursor.getString(loadCursor.getColumnIndex("title"));
@@ -191,7 +191,6 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 DiaryInfo sendInfo = new DiaryInfo();
-                sendInfo.setDbDateCode(mDiaryDateCode);
 
                 // DB에 데이터를 저장하는 부분
                 String editedTitle = mEditTextDiaryTitle.getText().toString();
@@ -211,6 +210,7 @@ public class DiaryWriteFragment extends Fragment {
                     else
                         sendInfo.setStrDiaryContent(editedContent);
 
+                    sendInfo.setDbDateCode(mDiaryDateCode);
                     sendInfo.setNumTypeCode(DIARY_ITEM);
                     sendInfo.setNumIdxCode(mDiaryIdx);
 
@@ -222,8 +222,7 @@ public class DiaryWriteFragment extends Fragment {
                         // 이미 해당 날짜, 해당 IDX에 적힌 글을 불러왔었다면, 해당 부분을 Update 해야 한다.
                         saveDB.update("diarylist", saveVal, "date=? AND idx=?",
                                 new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)});
-                    }
-                    else {
+                    } else {
                         // 아니라구요? 그럼 Insert하새오
                         saveVal.put("date", mDiaryDateCode.getNumDateCode());
                         saveVal.put("idx", mDiaryIdx);
@@ -231,12 +230,14 @@ public class DiaryWriteFragment extends Fragment {
                         saveDB.insert("diarylist", null, saveVal);
                     }
                     mfragDBHelper.close();
+
+                    // 리스트에 삽입하기
+                    ((MainActivity) getActivity()).setListItem(sendInfo);
                 }
 //                else {
 //                    // 근데 진자루 내용이 없으면? 뭘 처리하죠?
 //                }
-                // 리스트에 삽입하기
-                ((MainActivity) getActivity()).setListItem(sendInfo);
+
 
                 // 저장 후 마지막 후처리
                 setWriteMode(false);
