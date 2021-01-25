@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -55,8 +56,8 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 DiaryItemViewHolder itemViewHolder = (DiaryItemViewHolder) holder;
                 itemViewHolder.tvTitle.setText(diaryInfo.getStrDiaryTitle());
                 itemViewHolder.tvContent.setText(diaryInfo.getStrDiaryContent());
-                itemViewHolder.tvMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
-                itemViewHolder.tvDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
+//                itemViewHolder.tvMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
+//                itemViewHolder.tvDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
                 break;
             case 1: //Day Sep Line
                 DaySepLineViewHolder lineViewHolder = (DaySepLineViewHolder) holder;
@@ -86,13 +87,15 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         protected TextView tvDay;
         protected TextView tvTitle;
         protected TextView tvContent;
+        protected TextView cbDelCheck;
 
         public DiaryItemViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.tvMonth = (TextView) itemView.findViewById(R.id.tvMonth);
-            this.tvDay = (TextView) itemView.findViewById(R.id.tvDay);
+//            this.tvMonth = (TextView) itemView.findViewById(R.id.tvMonth);
+//            this.tvDay = (TextView) itemView.findViewById(R.id.tvDay);
             this.tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
             this.tvContent = (TextView) itemView.findViewById(R.id.tvContent);
+            this.cbDelCheck = (CheckBox) itemView.findViewById(R.id.cbDelCheck);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -102,6 +105,8 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         mListener.onItemClick(view, pos);
                 }
             });
+
+            itemView.setOn
         }
     }
 

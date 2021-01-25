@@ -14,11 +14,13 @@ public class DiaryDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS diarylist(date INTEGER, idx INTEGER, title TEXT, content TEXT, dayname TEXT);");
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS deletelist(date INTEGER, idx INTEGER, title TEXT, content TEXT, dayname TEXT);");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS diarylist;");
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS deletelist;");
         onCreate(sqLiteDatabase);
     }
 }

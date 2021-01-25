@@ -11,7 +11,10 @@ public class DiaryInfo implements Parcelable {
     private DBDateCode dbDateCode;
     private int numTypeCode;
     private int numIdxCode;
-
+    private boolean isChecked;
+    // Bool은 특별한 방식으로 체크합니다.
+    // 특히 writeBoolean이 API 29가 최소이므로 그냥 예전 방식 차용.
+ 
 
     protected DiaryInfo(Parcel in) {
         strDiaryTitle = in.readString();
@@ -19,6 +22,7 @@ public class DiaryInfo implements Parcelable {
         dbDateCode = in.readParcelable(DBDateCode.class.getClassLoader());
         numTypeCode = in.readInt();
         numIdxCode = in.readInt();
+        isChecked = in.readInt() != 0;
     }
 
     public static final Creator<DiaryInfo> CREATOR = new Creator<DiaryInfo>() {
@@ -89,6 +93,13 @@ public class DiaryInfo implements Parcelable {
         this.dbDateCode.setStrDateCode(code, dayName);
     }
 
+    public boolean isChecked() {
+        return isChecked;
+    }
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
+
 
     public DiaryInfo() {
         this.strDiaryTitle = "";
@@ -96,6 +107,7 @@ public class DiaryInfo implements Parcelable {
         this.dbDateCode = new DBDateCode();
         this.numTypeCode = 0;
         this.numIdxCode = 0;
+        this.isChecked = false;
     }
 
     public DiaryInfo(DiaryInfo diaryInfo) {
@@ -104,6 +116,7 @@ public class DiaryInfo implements Parcelable {
         this.dbDateCode = diaryInfo.dbDateCode;
         this.numTypeCode = diaryInfo.numTypeCode;
         this.numIdxCode = diaryInfo.numIdxCode;
+        this.isChecked = diaryInfo.isChecked;
     }
 
     @Override
@@ -118,5 +131,6 @@ public class DiaryInfo implements Parcelable {
         parcel.writeParcelable(dbDateCode, i);
         parcel.writeInt(numTypeCode);
         parcel.writeInt(numIdxCode);
+        parcel.writeInt(isChecked ? 1 : 0); // True = 1, False = 0
     }
 }

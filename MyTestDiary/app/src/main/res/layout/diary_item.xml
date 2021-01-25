@@ -34,25 +34,37 @@
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/tvMonth"
         android:layout_alignBottom="@id/tvMonth"
         android:layout_marginLeft="10dp"
-        android:maxLines="1"
+        android:layout_toLeftOf="@id/cbDelCheck"
+        android:layout_toRightOf="@id/tvMonth"
         android:ellipsize="end"
         android:ems="20"
-        android:textStyle="bold"
+        android:maxLines="1"
+        android:text="TextView"
         android:textSize="16sp"
-        android:text="TextView" />
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/tvDay"
         android:layout_alignTop="@id/tvDay"
         android:layout_marginLeft="10dp"
-        android:maxLines="1"
+        android:layout_toLeftOf="@id/cbDelCheck"
+        android:layout_toRightOf="@id/tvDay"
         android:ellipsize="end"
         android:ems="25"
+        android:maxLines="1"
         android:text="TextView" />
+
+    <CheckBox
+        android:id="@+id/cbDelCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:visibility="gone" />
 </RelativeLayout>

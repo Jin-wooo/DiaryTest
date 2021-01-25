@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 openDiary(bundle);
             }
         });
+
         fabNewDiary = (FloatingActionButton) findViewById(R.id.fabNewDiary);
         fabNewDiary.setOnClickListener(new View.OnClickListener() {
             @Override

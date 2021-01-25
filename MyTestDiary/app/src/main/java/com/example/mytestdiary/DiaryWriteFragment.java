@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -50,6 +52,7 @@ public class DiaryWriteFragment extends Fragment {
     private boolean mIsWritten;
     private boolean mIsTextChanged;
     String[] mFrag_colHeads;
+    String mOriginTitle, mOriginContent;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -125,6 +128,8 @@ public class DiaryWriteFragment extends Fragment {
             String strContent = loadCursor.getString(loadCursor.getColumnIndex("content"));
             mEditTextDiaryTitle.setText(strTitle);
             mEditTextContent.setText(strContent);
+            mOriginTitle = strTitle;
+            mOriginContent = strContent;
             loadCursor.close();
         }
         mfragDBHelper.close();
@@ -165,24 +170,20 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ((MainActivity) getActivity()).closeDiary();
+                mIsTextChanged = false;
 //                Intent intent = new Intent(getActivity(), MainActivity.class);
 //                startActivity(intent);
             }
         });
 
-
         // 일기장 화면에서 빠져나오는 버튼
         mImgbtnOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
-
-//                if (isTextChanged) {
-//                    // 다이얼로그를 띄워줍시다.
-//                }
-//                else {
-//
-//                }
+                if (mIsTextChanged) {
+                    // 다이얼로그를 띄워줍시다.
+                    saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
+                }
                 // 원래 저장된 기록과 텍스트가 일치하는 방식을 해야하나?
             }
         });
@@ -234,15 +235,12 @@ public class DiaryWriteFragment extends Fragment {
                     // 리스트에 삽입하기
                     ((MainActivity) getActivity()).setListItem(sendInfo);
                 }
-//                else {
-//                    // 근데 진자루 내용이 없으면? 뭘 처리하죠?
-//                }
-
 
                 // 저장 후 마지막 후처리
                 setWriteMode(false);
                 inputMethodManager.hideSoftInputFromWindow
                         (getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                mIsTextChanged = false;
                 mEditTextDiaryTitle.clearFocus();
                 mEditTextContent.clearFocus();
             }
@@ -259,6 +257,7 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
 //                Log.d("EditText", "Before Called");
+//                Log.d("EditText", "char : " + charSequence.toString());
 //                Log.d("EditText", "start : " + start);
 //                Log.d("EditText", "count : " + count);
 //                Log.d("EditText", "after : " + after);
@@ -267,6 +266,7 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
 //                Log.d("EditText", "Changed Called");
+//                Log.d("EditText", "char : " + charSequence.toString());
 //                Log.d("EditText", "start : " + start);
 //                Log.d("EditText", "before : " + before);
 //                Log.d("EditText", "count : " + count);
@@ -275,8 +275,7 @@ public class DiaryWriteFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                // Nothing...
-                Log.d("EditText", "After Called");
+//                Log.d("EditText", "After Called");
             }
         });
 
@@ -284,6 +283,32 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void onFocusChange(View view, boolean isFocused) {
                 setWriteMode(isFocused);
+            }
+        });
+
+        mEditTextDiaryTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+//                Log.d("EditText", "Before Called");
+//                Log.d("EditText", "char : " + charSequence.toString());
+//                Log.d("EditText", "start : " + start);
+//                Log.d("EditText", "count : " + count);
+//                Log.d("EditText", "after : " + after);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+//                Log.d("EditText", "Changed Called");
+//                Log.d("EditText", "char : " + charSequence.toString());
+//                Log.d("EditText", "start : " + start);
+//                Log.d("EditText", "before : " + before);
+//                Log.d("EditText", "count : " + count);
+                mIsTextChanged = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+//                Log.d("EditText", "After Called");
             }
         });
 
@@ -309,6 +334,7 @@ public class DiaryWriteFragment extends Fragment {
             mImgbtnReturn.setVisibility(View.GONE);
             mImgbtnOut.setVisibility(View.VISIBLE);
             mBtnSave.setVisibility(View.VISIBLE);
+            mBtnSave.setClickable(false);
         }
         else {
             mImgbtnReturn.setVisibility(View.VISIBLE);
