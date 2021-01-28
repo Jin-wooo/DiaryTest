@@ -20,6 +20,7 @@ import com.example.mytestdiary.DiaryList.DiaryListDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         // 당연하겠지만 내가 적은 일기장을 띄워주겠죠? 이건 DB랑 연동해서 작업해봅시다.
         diaryListAdapter.setOnItemClickListener(new DiaryListAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(View v, int pos) {
+            public void onItemClick(View view, int pos) {
                 // 리스트 기록 상의 날짜를 보내줘야 함
                 DiaryInfo tempInfo = diaryListAdapter.getItem(pos);
                 Bundle bundle = new Bundle();
@@ -124,6 +125,13 @@ public class MainActivity extends AppCompatActivity {
                 bundle.putBoolean("isWritten", true);
 
                 openDiary(bundle);
+            }
+        });
+
+        diaryListAdapter.setOnItemLongClickListener(new DiaryListAdapter.onItemLongClickListener() {
+            @Override
+            public void onItemLongClick(View view, int pos) {
+
             }
         });
 
@@ -187,6 +195,21 @@ public class MainActivity extends AppCompatActivity {
         updateTime();
 
         getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
+
+
+        Button button21 = (Button) findViewById(R.id.button21);
+        button21.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar cal = Calendar.getInstance();
+                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+                cal.set(2021, Calendar.JANUARY, 28);
+                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+                cal.set(2021, Calendar.MARCH, 4);
+                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+            }
+        });
     }
 
     // 앱 내부 시간을 표시하는 부분을 업데이트합니다.
@@ -279,6 +302,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /*
+     리스트의 아이템 하나를 세팅하는 함수입니다.
+     해당 날짜의 가장 위일 경우, 날짜구분을 위한 아이템이 하나 더 들어갑니다.
+    */
     public void setListItem(DiaryInfo info) {
         if (info.getNumIdxCode() == 0) {
             DiaryInfo sepInfo = new DiaryInfo();

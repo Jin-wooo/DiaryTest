@@ -12,35 +12,52 @@ public class DBDateCode implements Parcelable {
     private String strDiaryDay;
     private String strDayName;
 
+    // Year`s Getter and Setter
     public String getStrDiaryYear() {
         return strDiaryYear;
+    }
+    public int getStrDiaryYearToInt() {
+        return Integer.parseInt(strDiaryYear);
     }
     public void setStrDiaryYear(String strDiaryYear) {
         this.strDiaryYear = strDiaryYear;
     }
+    public void setStrDiaryYear(int diaryYear) {
+        this.strDiaryYear = Integer.toString(diaryYear);
+    }
 
+    // Month`s Getter and Setter
     public String getStrDiaryMonth() {
         return strDiaryMonth;
     }
+    public int getStrDiaryMonthToInt() {
+        return Integer.parseInt(strDiaryMonth);
+    }
     public void setStrDiaryMonth(String strDiaryMonth) {
-        if (strDiaryMonth.length() == 1) {
-            this.strDiaryMonth = "0" + strDiaryMonth;
-        }
-        else {
-            this.strDiaryMonth = strDiaryMonth;
-        }
+//        if (strDiaryMonth.length() == 1) {
+//            this.strDiaryMonth = "0" + strDiaryMonth;
+//        }
+//        else {
+//            this.strDiaryMonth = strDiaryMonth;
+//        }
+        this.strDiaryMonth = strDiaryMonth.length() == 1 ? "0" + strDiaryMonth : strDiaryMonth;
+    }
+    public void setStrDiaryMonth(int diaryMonth) {
+        setStrDiaryMonth(Integer.toString(diaryMonth));
     }
 
+    // Day`s Getter and Setter
     public String getStrDiaryDay() {
         return strDiaryDay;
     }
+    public int getStrDiaryDayToInt() {
+        return Integer.parseInt(strDiaryDay);
+    }
     public void setStrDiaryDay(String strDiaryDay) {
-        if (strDiaryDay.length() == 1) {
-            this.strDiaryDay = "0" + strDiaryDay;
-        }
-        else {
-            this.strDiaryDay = strDiaryDay;
-        }
+        this.strDiaryDay = strDiaryDay.length() == 1 ? "0" + strDiaryDay : strDiaryDay;
+    }
+    public void setStrDiaryDay(int diaryDay) {
+        setStrDiaryDay(Integer.toString(diaryDay));
     }
 
     public String getStrDayName() {

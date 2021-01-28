@@ -4,7 +4,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,15 +19,11 @@ import java.util.ArrayList;
 public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private ArrayList<DiaryInfo> mList;
-    private OnItemClickListener mListener;
+    private OnItemClickListener mClickListener;
+    private onItemLongClickListener mLongClickListener;
 
     public DiaryListAdapter() { mList = new ArrayList<DiaryInfo>(); }
     public DiaryListAdapter(ArrayList<DiaryInfo> mList) { this.mList = mList; }
-
-    @Override
-    public int getItemViewType(int position) {
-        return mList.get(position).getNumTypeCode();
-    }
 
     @NonNull
     @Override
@@ -82,6 +80,15 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mList.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return mList.get(position).getNumTypeCode();
+    }
+
+    public ArrayList<DiaryInfo> getDiaryList() {
+        return mList;
+    }
+
     public class DiaryItemViewHolder extends RecyclerView.ViewHolder {
         protected TextView tvMonth;
         protected TextView tvDay;
@@ -101,12 +108,30 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View view) {
                     int pos = getAdapterPosition();
-                    if (mListener != null)
-                        mListener.onItemClick(view, pos);
+                    if (mClickListener != null)
+                        mClickListener.onItemClick(view, pos);
                 }
             });
 
-            itemView.setOn
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int pos = getAdapterPosition();
+                    if (mLongClickListener != null) {
+                        mLongClickListener.onItemLongClick(view, pos);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            cbDelCheck.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    boolean itemChecked = ((CheckBox) view).isChecked();
+                    mList.get(getAdapterPosition()).setChecked(itemChecked);
+                }
+            });
         }
     }
 
@@ -124,10 +149,18 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public interface OnItemClickListener {
-        void onItemClick(View v, int pos);
+        void onItemClick(View view, int pos);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
-        this.mListener = listener;
+        this.mClickListener = listener;
+    }
+
+    public interface onItemLongClickListener {
+        void onItemLongClick(View view, int pos);
+    }
+
+    public void setOnItemLongClickListener(onItemLongClickListener listener) {
+        this.mLongClickListener = listener;
     }
 }

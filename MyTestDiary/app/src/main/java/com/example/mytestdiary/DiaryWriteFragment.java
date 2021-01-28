@@ -1,5 +1,6 @@
 package com.example.mytestdiary;
 
+import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -43,7 +45,7 @@ public class DiaryWriteFragment extends Fragment {
     private EditText mEditTextDiaryTitle;
     private ImageButton mImgbtnReturn;
     private ImageButton mImgbtnOut;
-    private TextView mTvDayScreen;
+    private Button mBtnDayScreen;
 
     private DiaryDBHelper mfragDBHelper;
     private DBDateCode mDiaryDateCode;
@@ -140,10 +142,18 @@ public class DiaryWriteFragment extends Fragment {
                 mDiaryDateCode.getStrDiaryMonth() + "." +
                 mDiaryDateCode.getStrDiaryDay()   + " " +
                 mDiaryDateCode.getStrDayName();
-        mTvDayScreen.setText(strDate);
+        mBtnDayScreen.setText(strDate);
+
+        // DatePickerDialog(Not Custom) Listener Setting
+        final DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+
+            }
+        };
 
 
-        // SaveAlertDialog Btn Setting
+        // SaveAlertDialog(Custom) Btn Setting
         saveAlertDialog.setOnNoticeDialogListener(new SaveAlertDialog.SaveDialogListener() {
             @Override
             public void onDialogOutClick(View view) {
@@ -185,6 +195,16 @@ public class DiaryWriteFragment extends Fragment {
                     saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
                 }
                 // 원래 저장된 기록과 텍스트가 일치하는 방식을 해야하나?
+            }
+        });
+
+        mBtnDayScreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new DatePickerDialog(rootView.getContext(), mDateSetListener,
+                        mDiaryDateCode.getStrDiaryYearToInt(),
+                        mDiaryDateCode.getStrDiaryMonthToInt(),
+                        mDiaryDateCode.getStrDiaryDayToInt()).show();
             }
         });
 
@@ -322,7 +342,7 @@ public class DiaryWriteFragment extends Fragment {
         mEditTextContent = rootView.findViewById(R.id.editTextContent);
         mImgbtnReturn = rootView.findViewById(R.id.btnReturn);
         mImgbtnOut = (ImageButton) rootView.findViewById(R.id.btnOut);
-        mTvDayScreen = (TextView) rootView.findViewById(R.id.tvDayScreen);
+        mBtnDayScreen = (Button) rootView.findViewById(R.id.btnDayScreen);
         mfragDBHelper = ((MainActivity) getActivity()).getMainDBHelper();
 
         mFrag_colHeads = getResources().getStringArray(R.array.all_column_names);
@@ -334,26 +354,13 @@ public class DiaryWriteFragment extends Fragment {
             mImgbtnReturn.setVisibility(View.GONE);
             mImgbtnOut.setVisibility(View.VISIBLE);
             mBtnSave.setVisibility(View.VISIBLE);
-            mBtnSave.setClickable(false);
+            mBtnSave.setClickable(true);
         }
         else {
             mImgbtnReturn.setVisibility(View.VISIBLE);
             mImgbtnOut.setVisibility(View.GONE);
             mBtnSave.setVisibility(View.GONE);
-        }
-    }
-
-    private void showResult(Cursor cur) {
-        int date = cur.getColumnIndex("date");
-        int idx = cur.getColumnIndex("idx");
-        int title_col = cur.getColumnIndex("title");
-        int ctt_col = cur.getColumnIndex("content");
-        while (cur.moveToNext()) {
-            Log.d(LOG_TAG, "Now In DB : ");
-            Log.d(LOG_TAG, "date : " + cur.getString(date));
-            Log.d(LOG_TAG, "idx : " + cur.getString(idx));
-            Log.d(LOG_TAG, "Title : " + cur.getString(title_col));
-            Log.d(LOG_TAG, "Content : " + cur.getString(ctt_col));
+            mBtnSave.setClickable(false);
         }
     }
 }

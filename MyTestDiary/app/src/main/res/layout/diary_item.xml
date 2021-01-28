@@ -66,5 +66,5 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:visibility="gone" />
+        android:visibility="visible" />
 </RelativeLayout>

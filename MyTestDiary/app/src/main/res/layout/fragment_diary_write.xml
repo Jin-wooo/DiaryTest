@@ -27,12 +27,13 @@
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tvDayScreen"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/btnDayScreen"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:gravity="center"
-        android:text=""
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#00FF0000"
         android:textSize="18sp" />
 
     <Button
@@ -49,7 +50,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tvDayScreen"
+        android:layout_below="@id/btnDayScreen"
         android:layout_marginTop="10dp"
         android:orientation="vertical">
 
@@ -58,12 +59,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:hint="오늘에게 제목을 지어줄래요?"
-            android:inputType="textPersonName"
-            android:paddingLeft="5dp"
-            android:maxLines="1"
             android:ellipsize="end"
             android:ems="25"
+            android:hint="오늘에게 제목을 지어줄래요?"
+            android:inputType="textPersonName"
+            android:maxLines="1"
+            android:paddingLeft="5dp"
             android:textSize="21sp"
             android:textStyle="bold" />
 
