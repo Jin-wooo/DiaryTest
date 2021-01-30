@@ -5,6 +5,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 public class DBDateCode implements Parcelable {
     private final static String LOG_TAG = "DBDateCode";
     private String strDiaryYear;
@@ -66,12 +68,50 @@ public class DBDateCode implements Parcelable {
     public void setStrDayName(String strDayName) {
         this.strDayName = strDayName;
     }
+    public void setStrDayName(int day) {
+        if (day > 7) {
+            this.strDayName = "???";
+            return;
+        }
+        switch (day) {
+            case 1:
+                this.strDayName = "Sun";
+                break;
+            case 2:
+                this.strDayName = "Mon";
+                break;
+            case 3:
+                this.strDayName = "Tue";
+                break;
+            case 4:
+                this.strDayName = "Wed";
+                break;
+            case 5:
+                this.strDayName = "Thu";
+                break;
+            case 6:
+                this.strDayName = "Fri";
+                break;
+            case 7:
+                this.strDayName = "Sat";
+                break;
+        }
+
+    }
 
     protected DBDateCode(Parcel in) {
         this.strDiaryYear = in.readString();
         this.strDiaryMonth = in.readString();
         this.strDiaryDay = in.readString();
         this.strDayName = in.readString();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return strDiaryYear + " / " +
+                strDiaryMonth + " / " +
+                strDiaryDay + " : " + strDayName;
     }
 
     public DBDateCode(DBDateCode code) {

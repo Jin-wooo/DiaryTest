@@ -28,6 +28,8 @@ import android.widget.TextView;
 
 import com.example.mytestdiary.DiaryList.DiaryInfo;
 
+import java.util.Calendar;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link DiaryWriteFragment#newInstance} factory method to
@@ -137,18 +139,23 @@ public class DiaryWriteFragment extends Fragment {
         mfragDBHelper.close();
 
         // 받아온 날짜로 날짜 부분을 세팅합니다.
-        String strDate =
-                mDiaryDateCode.getStrDiaryYear()  + "." +
-                mDiaryDateCode.getStrDiaryMonth() + "." +
-                mDiaryDateCode.getStrDiaryDay()   + " " +
-                mDiaryDateCode.getStrDayName();
-        mBtnDayScreen.setText(strDate);
+        Log.d(LOG_TAG, "Before Setting : " + mDiaryDateCode.toString());
+        mBtnDayScreen.setText(setDate(mDiaryDateCode));
 
         // DatePickerDialog(Not Custom) Listener Setting
         final DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                Calendar tmpCal = Calendar.getInstance();
+                tmpCal.set(year, month, day);
 
+                mDiaryDateCode.setStrDiaryYear(tmpCal.get(Calendar.YEAR));
+                mDiaryDateCode.setStrDiaryMonth(tmpCal.get(Calendar.MONTH) + 1);
+                mDiaryDateCode.setStrDiaryDay(tmpCal.get(Calendar.DAY_OF_MONTH));
+                mDiaryDateCode.setStrDayName(tmpCal.get(Calendar.DAY_OF_WEEK));
+                mBtnDayScreen.setText(setDate(mDiaryDateCode));
+                Log.d(LOG_TAG, "DatePicker Setting : " + mDiaryDateCode.toString());
+                Log.d(LOG_TAG, "DatePicker DayName : " + tmpCal.get(Calendar.DAY_OF_WEEK));
             }
         };
 
@@ -201,9 +208,10 @@ public class DiaryWriteFragment extends Fragment {
         mBtnDayScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(LOG_TAG, "Before Pick: " + mDiaryDateCode.toString());
                 new DatePickerDialog(rootView.getContext(), mDateSetListener,
                         mDiaryDateCode.getStrDiaryYearToInt(),
-                        mDiaryDateCode.getStrDiaryMonthToInt(),
+                        mDiaryDateCode.getStrDiaryMonthToInt() - 1,
                         mDiaryDateCode.getStrDiaryDayToInt()).show();
             }
         });
@@ -362,5 +370,12 @@ public class DiaryWriteFragment extends Fragment {
             mBtnSave.setVisibility(View.GONE);
             mBtnSave.setClickable(false);
         }
+    }
+
+    public String setDate(DBDateCode code) {
+        return code.getStrDiaryYear()  + "." +
+                code.getStrDiaryMonth() + "." +
+                code.getStrDiaryDay()   + " " +
+                code.getStrDayName();
     }
 }
