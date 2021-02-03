@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
     public void updateDateCode(Date date) {
         todayDateCode.setStrDiaryYear(new SimpleDateFormat("yyyy", Locale.KOREA).format(date));
         todayDateCode.setStrDiaryMonth(new SimpleDateFormat("MM", Locale.KOREA).format(date));
-        todayDateCode.setStrDiaryDay(new SimpleDateFormat("DD", Locale.KOREA).format(date));
+        todayDateCode.setStrDiaryDay(new SimpleDateFormat("dd", Locale.KOREA).format(date));
         todayDateCode.setStrDayName(new SimpleDateFormat("EEE", Locale.ENGLISH).format(date));
     }
 

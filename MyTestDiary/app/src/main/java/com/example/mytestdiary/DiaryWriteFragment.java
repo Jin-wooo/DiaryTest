@@ -30,11 +30,6 @@ import com.example.mytestdiary.DiaryList.DiaryInfo;
 
 import java.util.Calendar;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link DiaryWriteFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class DiaryWriteFragment extends Fragment {
 
     private final static String LOG_TAG = "DiaryWriteFragment";
@@ -42,6 +37,7 @@ public class DiaryWriteFragment extends Fragment {
     private final static int DAY_SEP_LINE = 1;
 
     // Android`s
+    private InputMethodManager inputMethodManager;
     private Button mBtnSave;
     private EditText mEditTextContent;
     private EditText mEditTextDiaryTitle;
@@ -51,12 +47,13 @@ public class DiaryWriteFragment extends Fragment {
 
     private DiaryDBHelper mfragDBHelper;
     private DBDateCode mDiaryDateCode;
+    private SaveAlertDialog saveAlertDialog;
 
     private int mDiaryIdx;
     private boolean mIsWritten;
     private boolean mIsTextChanged;
     String[] mFrag_colHeads;
-    String mOriginTitle, mOriginContent;
+    String mOriginTitle, mOriginContent = "";
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -67,6 +64,7 @@ public class DiaryWriteFragment extends Fragment {
                 if (mEditTextContent.isFocused() || mEditTextDiaryTitle.isFocused()) {
                     // 작성 중에는 mImgBtnOut과 동일한 기능을 수행합니다.
                     Log.d(LOG_TAG, "OUTED");
+                    checkToReturnShowMode();
                 }
                 else {
                     // 아니면? Return과 동일한 기능, 즉 그냥 나가집니다.
@@ -94,9 +92,9 @@ public class DiaryWriteFragment extends Fragment {
 
         final ViewGroup rootView = (ViewGroup) inflater.inflate
                 (R.layout.fragment_diary_write, container, false);
-        final InputMethodManager inputMethodManager =
+        inputMethodManager =
                 (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        final SaveAlertDialog saveAlertDialog = new SaveAlertDialog();
+        saveAlertDialog = new SaveAlertDialog();
 
         // Initialize
         init(rootView);
@@ -143,6 +141,7 @@ public class DiaryWriteFragment extends Fragment {
         mBtnDayScreen.setText(setDate(mDiaryDateCode));
 
         // DatePickerDialog(Not Custom) Listener Setting
+        // 날짜를 선택한 날짜로 세팅하고, 동시에 이 프래그먼트가 갖고 있던 날짜 변수도 갱신한다.
         final DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
@@ -164,13 +163,13 @@ public class DiaryWriteFragment extends Fragment {
         saveAlertDialog.setOnNoticeDialogListener(new SaveAlertDialog.SaveDialogListener() {
             @Override
             public void onDialogOutClick(View view) {
-                setWriteMode(false);
+                setShowMode();
                 // 나가는 키가 추가되면서 키보드가 자동적으로 포커스를 잃는다. 이거면 대충 키보드를 없애는 기능은 가능해지지 않을까?
 
                 mEditTextDiaryTitle.clearFocus();
-                mEditTextDiaryTitle.setText(null);
+                mEditTextDiaryTitle.setText(mOriginTitle);
                 mEditTextContent.clearFocus();
-                mEditTextContent.setText(null);
+                mEditTextContent.setText(mOriginContent);
                 mIsTextChanged = false;
 
                 saveAlertDialog.dismiss();
@@ -182,7 +181,7 @@ public class DiaryWriteFragment extends Fragment {
             }
         });
 
-        // 일기장 기록 모드에서 빠져나오는 버튼
+        // 일기장 화면 자체에서 빠져나오는 버튼(메인으로 돌아감)
         mImgbtnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -193,14 +192,11 @@ public class DiaryWriteFragment extends Fragment {
             }
         });
 
-        // 일기장 화면에서 빠져나오는 버튼
+        // 일기장 기록 모드에서 빠져나오는 버튼
         mImgbtnOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mIsTextChanged) {
-                    // 다이얼로그를 띄워줍시다.
-                    saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
-                }
+                checkToReturnShowMode();
                 // 원래 저장된 기록과 텍스트가 일치하는 방식을 해야하나?
             }
         });
@@ -262,22 +258,25 @@ public class DiaryWriteFragment extends Fragment {
 
                     // 리스트에 삽입하기
                     ((MainActivity) getActivity()).setListItem(sendInfo);
+
+                    mOriginTitle = editedTitle;
+                    mOriginContent = editedContent;
                 }
 
                 // 저장 후 마지막 후처리
-                setWriteMode(false);
-                inputMethodManager.hideSoftInputFromWindow
-                        (getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                mIsTextChanged = false;
-                mEditTextDiaryTitle.clearFocus();
-                mEditTextContent.clearFocus();
+                returnShowMode();
+
             }
         });
 
         mEditTextContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean isFocused) {
-                setWriteMode(isFocused);
+                if (isFocused) {
+                    setWriteMode();
+                } else {
+                    setShowMode();
+                }
             }
         });
 
@@ -310,7 +309,11 @@ public class DiaryWriteFragment extends Fragment {
         mEditTextDiaryTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean isFocused) {
-                setWriteMode(isFocused);
+                if (isFocused) {
+                    setWriteMode();
+                } else {
+                    setShowMode();
+                }
             }
         });
 
@@ -356,19 +359,41 @@ public class DiaryWriteFragment extends Fragment {
         mFrag_colHeads = getResources().getStringArray(R.array.all_column_names);
     }
 
-    public void setWriteMode(boolean isWriteMode) {
+
+    //다이어리 화면을 기록 화면으로 바꿉니다. 기록화면에서 나가는 버튼과 저장 버튼을 활성화합니다.
+    public void setWriteMode() {
         // 이 함수가 좀 이상하게 작동할수도 있으니...주의!
-        if (isWriteMode) {
-            mImgbtnReturn.setVisibility(View.GONE);
-            mImgbtnOut.setVisibility(View.VISIBLE);
-            mBtnSave.setVisibility(View.VISIBLE);
-            mBtnSave.setClickable(true);
+        mImgbtnReturn.setVisibility(View.GONE);
+        mImgbtnOut.setVisibility(View.VISIBLE);
+        mBtnSave.setVisibility(View.VISIBLE);
+        mBtnSave.setClickable(true);
+    }
+
+    // 다이어리 화면을 전시 화면으로 바꿉니다.
+    public void setShowMode() {
+        mImgbtnReturn.setVisibility(View.VISIBLE);
+        mImgbtnOut.setVisibility(View.GONE);
+        mBtnSave.setVisibility(View.GONE);
+        mBtnSave.setClickable(false);
+    }
+
+    // 특정 상황에서 다이어리를 전시 화면으로 되돌립니다.
+    public void returnShowMode() {
+        setShowMode();
+        inputMethodManager.hideSoftInputFromWindow
+                (getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        mIsTextChanged = false;
+        mEditTextDiaryTitle.clearFocus();
+        mEditTextContent.clearFocus();
+    }
+
+    public void checkToReturnShowMode() {
+        if (mIsTextChanged) {
+            // 다이얼로그를 띄워줍시다.
+            saveAlertDialog.show(getFragmentManager(), SaveAlertDialog.TAG_SAVE_ALERT);
         }
         else {
-            mImgbtnReturn.setVisibility(View.VISIBLE);
-            mImgbtnOut.setVisibility(View.GONE);
-            mBtnSave.setVisibility(View.GONE);
-            mBtnSave.setClickable(false);
+            returnShowMode();
         }
     }
 
