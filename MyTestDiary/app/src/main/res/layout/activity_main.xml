@@ -26,9 +26,9 @@
         <LinearLayout
             android:id="@+id/LLTimeWrapper"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_centerHorizontal="true">
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnYear"
@@ -36,8 +36,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="#00FFFFFF"
-                android:textSize="21sp"
-                android:text="2021" />
+                android:text="2021"
+                android:textSize="21sp" />
 
             <Button
                 android:id="@+id/btnMonth"
@@ -59,7 +59,20 @@
             android:id="@+id/button21"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:text="Button"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:background="#00FFFFFF"
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_delete"
+            android:text="Button"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <FrameLayout

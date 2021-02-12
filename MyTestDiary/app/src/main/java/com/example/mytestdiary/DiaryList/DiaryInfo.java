@@ -78,6 +78,7 @@ public class DiaryInfo implements Parcelable {
     public int getNumIdxCode() {
         return numIdxCode;
     }
+    public String getStrIdxCode() { return Integer.toString(numIdxCode); }
     public void setNumIdxCode(int numIdxCode) {
         this.numIdxCode = numIdxCode;
     }

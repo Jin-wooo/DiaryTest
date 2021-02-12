@@ -22,6 +22,9 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private OnItemClickListener mClickListener;
     private onItemLongClickListener mLongClickListener;
 
+    private final static int DIARY_ITEM = 0;
+    private final static int DAY_SEP_LINE = 1;
+
     public DiaryListAdapter() { mList = new ArrayList<DiaryInfo>(); }
     public DiaryListAdapter(ArrayList<DiaryInfo> mList) { this.mList = mList; }
 
@@ -30,11 +33,11 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
         switch (viewType) {
-            case 0: // Diary_item
+            case DIARY_ITEM: // Diary_item
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.diary_item, parent, false);
                 return new DiaryItemViewHolder(view);
-            case 1: // Day Separate Line
+            case DAY_SEP_LINE: // Day Separate Line
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.diary_dayline, parent, false);
                 return new DaySepLineViewHolder(view);
@@ -50,14 +53,21 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final DiaryInfo diaryInfo = mList.get(position);
         switch (diaryInfo.getNumTypeCode()) {
-            case 0: //item
+            case DIARY_ITEM: //item
                 DiaryItemViewHolder itemViewHolder = (DiaryItemViewHolder) holder;
                 itemViewHolder.tvTitle.setText(diaryInfo.getStrDiaryTitle());
                 itemViewHolder.tvContent.setText(diaryInfo.getStrDiaryContent());
 //                itemViewHolder.tvMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
 //                itemViewHolder.tvDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
+
+                if (mList.get(position).isChecked()) {
+                    ((CheckBox) itemViewHolder.cbDelCheck).setChecked(true);
+                }
+                else {
+                    ((CheckBox) itemViewHolder.cbDelCheck).setChecked(false);
+                }
                 break;
-            case 1: //Day Sep Line
+            case DAY_SEP_LINE: //Day Sep Line
                 DaySepLineViewHolder lineViewHolder = (DaySepLineViewHolder) holder;
                 lineViewHolder.tvSepMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
                 lineViewHolder.tvSepDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
@@ -89,9 +99,21 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mList;
     }
 
+//    public void setCheckBoxVisibility(boolean isShow) {
+//        for (DiaryInfo info : mList) {
+//            if (info.getNumTypeCode() == 0) {
+//                info.
+//            }
+//        }
+//    }
+
+    public void setAllBoxValue(boolean val) {
+
+    }
+
     public class DiaryItemViewHolder extends RecyclerView.ViewHolder {
-        protected TextView tvMonth;
-        protected TextView tvDay;
+//        protected TextView tvMonth;
+//        protected TextView tvDay;
         protected TextView tvTitle;
         protected TextView tvContent;
         protected TextView cbDelCheck;
@@ -103,6 +125,8 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
             this.tvContent = (TextView) itemView.findViewById(R.id.tvContent);
             this.cbDelCheck = (CheckBox) itemView.findViewById(R.id.cbDelCheck);
+
+            cbDelCheck.setVisibility(View.VISIBLE);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -116,6 +140,7 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
+                    Log.d("DiaryListAdapter", "INSIDE ADAPTER");
                     int pos = getAdapterPosition();
                     if (mLongClickListener != null) {
                         mLongClickListener.onItemLongClick(view, pos);
@@ -132,6 +157,16 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     mList.get(getAdapterPosition()).setChecked(itemChecked);
                 }
             });
+        }
+
+        public void setCheckBoxVisibility(boolean isVisible) {
+            if (isVisible) {
+                cbDelCheck.setVisibility(View.VISIBLE);
+            }
+            else {
+                cbDelCheck.setVisibility(View.GONE);
+            }
+
         }
     }
 

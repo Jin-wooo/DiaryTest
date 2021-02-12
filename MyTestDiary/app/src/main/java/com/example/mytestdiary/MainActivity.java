@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.mytestdiary.DiaryList.DiaryInfo;
@@ -20,6 +21,7 @@ import com.example.mytestdiary.DiaryList.DiaryListDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabNewDiary;
     private Button btnYear;
     private Button btnMonth;
+    private ImageButton mImgBtnDelete;
 
     public DiaryDBHelper getMainDBHelper() {
         return MainDBHelper;
@@ -131,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         diaryListAdapter.setOnItemLongClickListener(new DiaryListAdapter.onItemLongClickListener() {
             @Override
             public void onItemLongClick(View view, int pos) {
-
+                Log.d(LOG_TAG, "INSIDE Mains");
             }
         });
 
@@ -173,6 +176,36 @@ public class MainActivity extends AppCompatActivity {
                 openDiary(bundle);
             }
         });
+
+        mImgBtnDelete = (ImageButton) findViewById(R.id.btnDelete);
+        mImgBtnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<DiaryInfo> originInfo = diaryListAdapter.getDiaryList();
+                DiaryInfo deleteInfo;
+                SQLiteDatabase delDB = MainDBHelper.getReadableDatabase();
+                Cursor chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
+                showResult(chkCursor);
+
+
+                for (int iterDel = 0; iterDel < originInfo.size(); iterDel++) {
+                    deleteInfo = originInfo.get(iterDel);
+                    // 체크한 항목을 찾아냅니다.(값으로 긁어올 수 있게 작업함)
+                    if (deleteInfo.isChecked()) {
+                        // 어댑터 내에서 아이템을 제거합니다. (시각적으로 제거)
+                        diaryListAdapter.removeItem(iterDel);
+
+                        // DB에서도 제거합니다. (DB 내 제거)
+                        delDB = MainDBHelper.getWritableDatabase();
+                        delDB.delete("diarylist", "date=? AND idx=?", new String[]{deleteInfo.getStrDateCode(), deleteInfo.getStrIdxCode()});
+                    }
+                    chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
+                    showResult(chkCursor);
+                }
+                // 변경 시항을 저장합니다.
+                diaryListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void init() {
@@ -197,19 +230,19 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
 
 
-        Button button21 = (Button) findViewById(R.id.button21);
-        button21.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Calendar cal = Calendar.getInstance();
-                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
-                cal.set(2021, Calendar.JANUARY, 28);
-                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
-                cal.set(2021, Calendar.MARCH, 4);
-                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
-                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
-            }
-        });
+//        Button button21 = (Button) findViewById(R.id.button21);
+//        button21.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Calendar cal = Calendar.getInstance();
+//                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+//                cal.set(2021, Calendar.JANUARY, 28);
+//                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+//                cal.set(2021, Calendar.MARCH, 4);
+//                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+//                Log.d(LOG_TAG, Integer.toString(cal.get(Calendar.DAY_OF_WEEK)));
+//            }
+//        });
     }
 
     // 앱 내부 시간을 표시하는 부분을 업데이트합니다.
@@ -251,6 +284,10 @@ public class MainActivity extends AppCompatActivity {
         diaryTransaction = getSupportFragmentManager().beginTransaction();
         diaryTransaction.remove(diaryWriteFragment);
         diaryTransaction.commit();
+    }
+
+    public void setDeleteMode(boolean isDeleteMode) {
+
     }
 
     private void setDiaryList() {
