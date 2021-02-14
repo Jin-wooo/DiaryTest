@@ -21,6 +21,7 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private ArrayList<DiaryInfo> mList;
     private OnItemClickListener mClickListener;
     private onItemLongClickListener mLongClickListener;
+    private boolean isChkBoxVisble;
 
     private final static int DIARY_ITEM = 0;
     private final static int DAY_SEP_LINE = 1;
@@ -46,12 +47,15 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         // Case에 안 걸렸으면 그냥 이게 튀어나가면 됨
         view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.diary_item, parent, false);
+        isChkBoxVisble = false;
         return new DiaryItemViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final DiaryInfo diaryInfo = mList.get(position);
+        Log.d("Adapter", "Bind No." + Integer.toString(position));
+
         switch (diaryInfo.getNumTypeCode()) {
             case DIARY_ITEM: //item
                 DiaryItemViewHolder itemViewHolder = (DiaryItemViewHolder) holder;
@@ -60,11 +64,18 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 //                itemViewHolder.tvMonth.setText(diaryInfo.getDbDateCode().getStrDiaryMonth());
 //                itemViewHolder.tvDay.setText(diaryInfo.getDbDateCode().getStrDiaryDay());
 
+                // 체크박스 초기화 문제를 고쳐주는 코드
                 if (mList.get(position).isChecked()) {
                     ((CheckBox) itemViewHolder.cbDelCheck).setChecked(true);
-                }
-                else {
+                } else {
                     ((CheckBox) itemViewHolder.cbDelCheck).setChecked(false);
+                }
+
+                // 체크박스 Visibility 문제 해결 코드
+                if (isChkBoxVisble) {
+                    ((CheckBox) itemViewHolder.cbDelCheck).setVisibility(View.VISIBLE);
+                } else {
+                    ((CheckBox) itemViewHolder.cbDelCheck).setVisibility(View.GONE);
                 }
                 break;
             case DAY_SEP_LINE: //Day Sep Line
@@ -99,16 +110,20 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mList;
     }
 
-//    public void setCheckBoxVisibility(boolean isShow) {
-//        for (DiaryInfo info : mList) {
-//            if (info.getNumTypeCode() == 0) {
-//                info.
-//            }
-//        }
-//    }
+    public DiaryInfo getLastInfo() {
+        return mList.get(mList.size() - 1);
+    }
 
-    public void setAllBoxValue(boolean val) {
 
+    public void setCheckBoxVisibility(boolean isShow) {
+        isChkBoxVisble = isShow;
+    }
+    public void setAllCheckBoxValue(boolean val) {
+        for (DiaryInfo diaryInfo : mList) {
+            if (diaryInfo.getNumTypeCode() == 1) {
+                diaryInfo.setChecked(val);
+            }
+        }
     }
 
     public class DiaryItemViewHolder extends RecyclerView.ViewHolder {
@@ -168,6 +183,8 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
 
         }
+
+
     }
 
     public class DaySepLineViewHolder extends RecyclerView.ViewHolder {

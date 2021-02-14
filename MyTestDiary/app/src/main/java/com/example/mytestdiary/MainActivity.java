@@ -59,15 +59,24 @@ public class MainActivity extends AppCompatActivity {
     OnBackPressedCallback onBackPressedCallback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
-            if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
-                backKeyPressedTime = System.currentTimeMillis();
-                Toast.makeText(MainActivity.this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+            if (mImgBtnDelete.getVisibility() == View.VISIBLE) {
+                // 현재 삭제 모드. 삭제 모드를 해제하는 메서드
+                setDeleteMode(false);
             }
             else {
-                finish();
-                System.exit(0);
-                android.os.Process.killProcess(android.os.Process.myPid());
+
+                // 현재 기본 화면임. 뒤로 가기로 종료하기 실행
+                if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+                    backKeyPressedTime = System.currentTimeMillis();
+                    Toast.makeText(MainActivity.this, "\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                    System.exit(0);
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                }
             }
+
         }
     };
 
@@ -135,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemLongClick(View view, int pos) {
                 Log.d(LOG_TAG, "INSIDE Mains");
+                if (mImgBtnDelete.getVisibility() != View.VISIBLE) {
+                    setDeleteMode(true);
+                }
             }
         });
 
@@ -181,15 +193,14 @@ public class MainActivity extends AppCompatActivity {
         mImgBtnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ArrayList<DiaryInfo> originInfo = diaryListAdapter.getDiaryList();
+                ArrayList<DiaryInfo> listOriginInfo = diaryListAdapter.getDiaryList();
                 DiaryInfo deleteInfo;
                 SQLiteDatabase delDB = MainDBHelper.getReadableDatabase();
                 Cursor chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
                 showResult(chkCursor);
 
-
-                for (int iterDel = 0; iterDel < originInfo.size(); iterDel++) {
-                    deleteInfo = originInfo.get(iterDel);
+                for (int iterDel = 0; iterDel < listOriginInfo.size(); iterDel++) {
+                    deleteInfo = listOriginInfo.get(iterDel);
                     // 체크한 항목을 찾아냅니다.(값으로 긁어올 수 있게 작업함)
                     if (deleteInfo.isChecked()) {
                         // 어댑터 내에서 아이템을 제거합니다. (시각적으로 제거)
@@ -204,6 +215,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 // 변경 시항을 저장합니다.
                 diaryListAdapter.notifyDataSetChanged();
+                MainDBHelper.close();
+                chkCursor.close();
+                setDeleteMode(false);
             }
         });
     }
@@ -287,7 +301,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setDeleteMode(boolean isDeleteMode) {
-
+        if (isDeleteMode) {
+            mImgBtnDelete.setVisibility(View.VISIBLE);
+            diaryListAdapter.setCheckBoxVisibility(true);
+        }
+        else {
+            mImgBtnDelete.setVisibility(View.GONE);
+            diaryListAdapter.setCheckBoxVisibility(false);
+        }
+        diaryListAdapter.notifyDataSetChanged();
     }
 
     private void setDiaryList() {
@@ -299,6 +321,7 @@ public class MainActivity extends AppCompatActivity {
         String setDate, setTitle, setContent, setDayName;
         int setIdx;
         DiaryInfo setInfo;
+        DBDateCode previousDateCode;
 
         while (setCursor.moveToNext()) {
             setInfo = new DiaryInfo();
@@ -309,12 +332,14 @@ public class MainActivity extends AppCompatActivity {
             setContent = setCursor.getString(setCursor.getColumnIndex("content"));
 //                    .substring(0, getResources().getInteger(R.integer.content_max_length));
             setDayName = setCursor.getString(setCursor.getColumnIndex("dayname"));
+            previousDateCode = diaryListAdapter.getLastInfo().getDbDateCode();
 
             // 그 날의 맨 처음 일기라면, 날짜분리선을 달아줘야 한다.
-            if (setIdx == 0) {
+            if (Integer.parseInt(setDate) > Integer.parseInt(previousDateCode.getStrDateCode())) {
                 DiaryInfo sepInfo = new DiaryInfo();
                 sepInfo.setStrDateCode(setDate, setDayName);
                 sepInfo.setNumTypeCode(DAY_SEP_LINE);
+                sepInfo.setNumIdxCode(-1); // 날짜분리선이므로 인덱스의 적용을 받지 않는 아이템임
 
                 diaryListAdapter.setItem(sepInfo);
             }
