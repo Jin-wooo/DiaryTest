@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebStorage;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -129,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
         diaryListAdapter.setOnItemClickListener(new DiaryListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int pos) {
+                // 삭제할 때는 클릭이 되면 안되자너? 그러니까 원래 클릭 기능을 막아야지.
+                if (mImgBtnDelete.getVisibility() == View.VISIBLE) {
+                     return;
+                }
                 // 리스트 기록 상의 날짜를 보내줘야 함
                 DiaryInfo tempInfo = diaryListAdapter.getItem(pos);
                 Bundle bundle = new Bundle();
@@ -163,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 Cursor diaryCursor = db.query("diarylist", getResources().getStringArray(R.array.all_column_names), "date=?",
                         new String[]{todayDateCode.getStrDateCode()},
                         null, null, "idx DESC");
+                diaryCursor.moveToFirst();
 //                showResult(diaryCursor);
 
                 int newIdx = 0; // 기본적으로는 0이 세팅됨.
@@ -193,8 +199,9 @@ public class MainActivity extends AppCompatActivity {
         mImgBtnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int prevLineIdx = 0;
                 ArrayList<DiaryInfo> listOriginInfo = diaryListAdapter.getDiaryList();
-                DiaryInfo deleteInfo;
+                DiaryInfo prevInfo, deleteInfo;
                 SQLiteDatabase delDB = MainDBHelper.getReadableDatabase();
                 Cursor chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
                 showResult(chkCursor);
@@ -205,6 +212,32 @@ public class MainActivity extends AppCompatActivity {
                     if (deleteInfo.isChecked()) {
                         // 어댑터 내에서 아이템을 제거합니다. (시각적으로 제거)
                         diaryListAdapter.removeItem(iterDel);
+
+                        // 만약 그게 그 날짜의 마지막 일기라면, 날짜구분선도 날려야겠죠.
+                        prevLineIdx = iterDel - 1;
+                        prevInfo = listOriginInfo.get(prevLineIdx);
+                        // 날짜구분선인 경우에만 작동
+                        if (prevInfo.getNumIdxCode() == -1) {
+                            if (prevLineIdx == 0) {
+                                // 내 밑의 아이템이 나보다 날짜가 더 클 때(다를 때...도 가능할듯)
+                                if (prevInfo.getNumDateCode() < listOriginInfo.get(prevLineIdx + 1).getNumDateCode()) {
+                                    diaryListAdapter.removeItem(prevLineIdx);
+                                }
+                            }
+                            else if (prevLineIdx == listOriginInfo.size() - 1) {
+                                // 내 위의 아이템이 나보다 날짜가 더 작을 때(내 위로 다른 날짜의 일기)
+                                if (prevInfo.getNumDateCode() > listOriginInfo.get(prevLineIdx - 1).getNumDateCode()) {
+                                    diaryListAdapter.removeItem(prevLineIdx);
+                                }
+                            }
+                            else {
+                                // 내 위아래가 다 나랑 날짜가 다름(필요없는 구분선)
+                                if (prevInfo.getNumDateCode() < listOriginInfo.get(prevLineIdx + 1).getNumDateCode() ||
+                                        prevInfo.getNumDateCode() > listOriginInfo.get(prevLineIdx - 1).getNumDateCode()) {
+                                    diaryListAdapter.removeItem(prevLineIdx);
+                                }
+                            }
+                        }
 
                         // DB에서도 제거합니다. (DB 내 제거)
                         delDB = MainDBHelper.getWritableDatabase();
@@ -272,7 +305,6 @@ public class MainActivity extends AppCompatActivity {
         btnMonth.setText(strMonth);
 
         updateDateCode(date);
-
     }
 
     // 앱 내부 시간을 가진 DateCode를 업데이트합니다.
@@ -303,11 +335,14 @@ public class MainActivity extends AppCompatActivity {
     public void setDeleteMode(boolean isDeleteMode) {
         if (isDeleteMode) {
             mImgBtnDelete.setVisibility(View.VISIBLE);
+            fabNewDiary.hide();
             diaryListAdapter.setCheckBoxVisibility(true);
         }
         else {
             mImgBtnDelete.setVisibility(View.GONE);
+            fabNewDiary.show();
             diaryListAdapter.setCheckBoxVisibility(false);
+            diaryListAdapter.setAllCheckBoxValue(false);
         }
         diaryListAdapter.notifyDataSetChanged();
     }
@@ -316,12 +351,12 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase database = MainDBHelper.getReadableDatabase();
         Cursor setCursor = database.query("diarylist",
                 getResources().getStringArray(R.array.all_column_names), null,
-                null, null, null, null);
+                null, null, null, "date ASC, idx ASC");
 
         String setDate, setTitle, setContent, setDayName;
         int setIdx;
         DiaryInfo setInfo;
-        DBDateCode previousDateCode;
+        int prevDate = 0;
 
         while (setCursor.moveToNext()) {
             setInfo = new DiaryInfo();
@@ -332,10 +367,9 @@ public class MainActivity extends AppCompatActivity {
             setContent = setCursor.getString(setCursor.getColumnIndex("content"));
 //                    .substring(0, getResources().getInteger(R.integer.content_max_length));
             setDayName = setCursor.getString(setCursor.getColumnIndex("dayname"));
-            previousDateCode = diaryListAdapter.getLastInfo().getDbDateCode();
 
             // 그 날의 맨 처음 일기라면, 날짜분리선을 달아줘야 한다.
-            if (Integer.parseInt(setDate) > Integer.parseInt(previousDateCode.getStrDateCode())) {
+            if (Integer.parseInt(setDate) > prevDate) {
                 DiaryInfo sepInfo = new DiaryInfo();
                 sepInfo.setStrDateCode(setDate, setDayName);
                 sepInfo.setNumTypeCode(DAY_SEP_LINE);
@@ -358,26 +392,58 @@ public class MainActivity extends AppCompatActivity {
             setInfo.setNumTypeCode(DIARY_ITEM);
 
             diaryListAdapter.setItem(setInfo);
+            prevDate = Integer.parseInt(setDate);
         }
         diaryListAdapter.notifyDataSetChanged();
-
-
+        setCursor.close();
+        MainDBHelper.close();
     }
 
     /*
      리스트의 아이템 하나를 세팅하는 함수입니다.
-     해당 날짜의 가장 위일 경우, 날짜구분을 위한 아이템이 하나 더 들어갑니다.
-    */
+    해당 날짜의 가장 위일 경우, 날짜구분을 위한 아이템이 하나 더 들어갑니다.
+            */
     public void setListItem(DiaryInfo info) {
-        if (info.getNumIdxCode() == 0) {
+        ArrayList<DiaryInfo> settingList = diaryListAdapter.getDiaryList();
+        int setDate = info.getNumDateCode();
+        int iterSet = 0;
+
+        // 이 아이템이 어느 위치로 들어가야할지 정합니다.
+        while (setDate >= settingList.get(iterSet).getNumDateCode()) {
+            iterSet++;
+        }
+        diaryListAdapter.setItem(iterSet, info);
+
+        if (iterSet == 0 || setDate > settingList.get(iterSet - 1).getNumDateCode()) {
             DiaryInfo sepInfo = new DiaryInfo();
             sepInfo.setStrDateCode(info.getStrDateCode(), info.getDbDateCode().getStrDayName());
             sepInfo.setNumTypeCode(DAY_SEP_LINE);
 
-            diaryListAdapter.setItem(sepInfo);
+            diaryListAdapter.setItem(iterSet, sepInfo);
         }
-        diaryListAdapter.setItem(info);
         diaryListAdapter.notifyDataSetChanged();
+    }
+
+    public void updateListItem(String strCode, int dbIdx, DiaryInfo info) {
+        ArrayList<DiaryInfo> updateList = diaryListAdapter.getDiaryList();
+        DiaryInfo tmpInfo;
+        int listIdx = 0;
+
+        for (int iterFind = 0; iterFind < updateList.size(); iterFind++) {
+            tmpInfo = updateList.get(iterFind);
+            if (tmpInfo.getStrDateCode().equals(strCode) && tmpInfo.getNumIdxCode() == dbIdx) {
+                listIdx = iterFind;
+                break;
+            }
+        }
+
+        try {
+            diaryListAdapter.updateItem(listIdx, info);
+            diaryListAdapter.notifyDataSetChanged();
+        }
+        catch (Exception e) {
+            Log.d(LOG_TAG, "updateListItem Error. Maybe List IDX");
+        }
     }
 
     protected void showResult(Cursor cur) {

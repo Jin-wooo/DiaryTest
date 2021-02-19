@@ -92,6 +92,8 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     // 해당 데이터를 Adapter의 리스트에 추가합니다.
     public void setItem(DiaryInfo diaryInfo) { mList.add(diaryInfo); }
+    public void setItem(int index, DiaryInfo diaryInfo) { mList.add(index, diaryInfo); }
+    public void updateItem(int index, DiaryInfo diaryInfo) { mList.set(index, diaryInfo); }
 
     // idx에 해당하는 데이터를 삭제합니다.
     public void removeItem(int idx) { mList.remove(idx); }
@@ -111,6 +113,9 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public DiaryInfo getLastInfo() {
+        if (mList.size() == 0) {
+            return new DiaryInfo();
+        }
         return mList.get(mList.size() - 1);
     }
 
@@ -181,7 +186,10 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             else {
                 cbDelCheck.setVisibility(View.GONE);
             }
+        }
 
+        public boolean isCheckBoxVisible() {
+            return cbDelCheck.getVisibility() == View.VISIBLE;
         }
 
 

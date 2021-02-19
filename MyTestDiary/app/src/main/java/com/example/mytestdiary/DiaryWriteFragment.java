@@ -220,6 +220,7 @@ public class DiaryWriteFragment extends Fragment {
                 // DB에 데이터를 저장하는 부분
                 String editedTitle = mEditTextDiaryTitle.getText().toString();
                 String editedContent = mEditTextContent.getText().toString();
+
                 if (!(editedTitle.isEmpty() && editedContent.isEmpty())) {
                     // 둘 다 비었으면 데이터 저장을 웨함? 실행할 필요 없고, 데이터 전달도 필요가 없겠죠?
 
@@ -241,23 +242,29 @@ public class DiaryWriteFragment extends Fragment {
 
                     ContentValues saveVal = new ContentValues();
                     SQLiteDatabase saveDB = mfragDBHelper.getWritableDatabase();
+
                     saveVal.put("title", editedTitle);
                     saveVal.put("content", editedContent);
+
                     if (mIsWritten) {
                         // 이미 해당 날짜, 해당 IDX에 적힌 글을 불러왔었다면, 해당 부분을 Update 해야 한다.
                         saveDB.update("diarylist", saveVal, "date=? AND idx=?",
                                 new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)});
+
+                        // 업데이트는 리스트에도 포함된다. 리스트의 해당 아이템을 '갱신'해야 한다.
+                        ((MainActivity) getActivity()).updateListItem(mDiaryDateCode.getStrDateCode(), mDiaryIdx, sendInfo);
+
                     } else {
                         // 아니라구요? 그럼 Insert하새오
                         saveVal.put("date", mDiaryDateCode.getNumDateCode());
                         saveVal.put("idx", mDiaryIdx);
                         saveVal.put("dayname", mDiaryDateCode.getStrDayName());
                         saveDB.insert("diarylist", null, saveVal);
+
+                        // 리스트에 삽입하기
+                        ((MainActivity) getActivity()).setListItem(sendInfo);
                     }
                     mfragDBHelper.close();
-
-                    // 리스트에 삽입하기
-                    ((MainActivity) getActivity()).setListItem(sendInfo);
 
                     mOriginTitle = editedTitle;
                     mOriginContent = editedContent;
