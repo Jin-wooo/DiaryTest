@@ -54,7 +54,7 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         final DiaryInfo diaryInfo = mList.get(position);
-        Log.d("Adapter", "Bind No." + Integer.toString(position));
+//        Log.d("Adapter", "Bind No." + Integer.toString(position));
 
         switch (diaryInfo.getNumTypeCode()) {
             case DIARY_ITEM: //item
@@ -124,9 +124,17 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         isChkBoxVisble = isShow;
     }
     public void setAllCheckBoxValue(boolean val) {
-        for (DiaryInfo diaryInfo : mList) {
-            if (diaryInfo.getNumTypeCode() == 1) {
-                diaryInfo.setChecked(val);
+        for (int iterVal = 0; iterVal < mList.size(); iterVal++) {
+            if (mList.get(iterVal).getNumTypeCode() == DIARY_ITEM) {
+                mList.get(iterVal).setChecked(val);
+            }
+
+            if (mList.get(iterVal).isChecked()) {
+                Log.d("ADAPTER", "No. " + iterVal + " is True");
+            }
+            else {
+                Log.d("ADAPTER", "No. " + iterVal + " is False");
+
             }
         }
     }
@@ -136,7 +144,7 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 //        protected TextView tvDay;
         protected TextView tvTitle;
         protected TextView tvContent;
-        protected TextView cbDelCheck;
+        protected CheckBox cbDelCheck;
 
         public DiaryItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -146,14 +154,20 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.tvContent = (TextView) itemView.findViewById(R.id.tvContent);
             this.cbDelCheck = (CheckBox) itemView.findViewById(R.id.cbDelCheck);
 
-            cbDelCheck.setVisibility(View.VISIBLE);
+//            cbDelCheck.setVisibility(View.VISIBLE);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int pos = getAdapterPosition();
-                    if (mClickListener != null)
-                        mClickListener.onItemClick(view, pos);
+                    if (cbDelCheck.getVisibility() == View.VISIBLE) {
+                        cbDelCheck.setChecked(!cbDelCheck.isChecked());
+                        cbDelCheck.callOnClick();
+                    }
+                    else {
+                        int pos = getAdapterPosition();
+                        if (mClickListener != null)
+                            mClickListener.onItemClick(view, pos);
+                    }
                 }
             });
 
@@ -162,6 +176,10 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 public boolean onLongClick(View view) {
                     Log.d("DiaryListAdapter", "INSIDE ADAPTER");
                     int pos = getAdapterPosition();
+                    if (cbDelCheck.getVisibility() == View.GONE) {
+                        cbDelCheck.setChecked(true);
+                        mList.get(pos).setChecked(true);
+                    }
                     if (mLongClickListener != null) {
                         mLongClickListener.onItemLongClick(view, pos);
                         return true;
@@ -173,7 +191,8 @@ public class DiaryListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             cbDelCheck.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    boolean itemChecked = ((CheckBox) view).isChecked();
+                    Log.d("ADAPTER", "No. " + getAdapterPosition() + " : CheckBox event activate");
+                    boolean itemChecked = cbDelCheck.isChecked();
                     mList.get(getAdapterPosition()).setChecked(itemChecked);
                 }
             });

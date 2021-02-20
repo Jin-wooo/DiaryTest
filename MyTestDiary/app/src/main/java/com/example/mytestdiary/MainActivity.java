@@ -130,10 +130,6 @@ public class MainActivity extends AppCompatActivity {
         diaryListAdapter.setOnItemClickListener(new DiaryListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int pos) {
-                // 삭제할 때는 클릭이 되면 안되자너? 그러니까 원래 클릭 기능을 막아야지.
-                if (mImgBtnDelete.getVisibility() == View.VISIBLE) {
-                     return;
-                }
                 // 리스트 기록 상의 날짜를 보내줘야 함
                 DiaryInfo tempInfo = diaryListAdapter.getItem(pos);
                 Bundle bundle = new Bundle();
@@ -200,40 +196,41 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 int prevLineIdx = 0;
-                ArrayList<DiaryInfo> listOriginInfo = diaryListAdapter.getDiaryList();
                 DiaryInfo prevInfo, deleteInfo;
-                SQLiteDatabase delDB = MainDBHelper.getReadableDatabase();
-                Cursor chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
-                showResult(chkCursor);
+                SQLiteDatabase delDB;
+//                SQLiteDatabase delDB = MainDBHelper.getReadableDatabase();
+//                Cursor chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
+//                showResult(chkCursor);
 
-                for (int iterDel = 0; iterDel < listOriginInfo.size(); iterDel++) {
-                    deleteInfo = listOriginInfo.get(iterDel);
+                for (int iterDel = 0; iterDel < diaryListAdapter.getItemCount(); iterDel++) {
+                    deleteInfo = diaryListAdapter.getItem(iterDel);
                     // 체크한 항목을 찾아냅니다.(값으로 긁어올 수 있게 작업함)
                     if (deleteInfo.isChecked()) {
                         // 어댑터 내에서 아이템을 제거합니다. (시각적으로 제거)
                         diaryListAdapter.removeItem(iterDel);
 
+
                         // 만약 그게 그 날짜의 마지막 일기라면, 날짜구분선도 날려야겠죠.
                         prevLineIdx = iterDel - 1;
-                        prevInfo = listOriginInfo.get(prevLineIdx);
+                        prevInfo = diaryListAdapter.getItem(prevLineIdx);
                         // 날짜구분선인 경우에만 작동
                         if (prevInfo.getNumIdxCode() == -1) {
                             if (prevLineIdx == 0) {
                                 // 내 밑의 아이템이 나보다 날짜가 더 클 때(다를 때...도 가능할듯)
-                                if (prevInfo.getNumDateCode() < listOriginInfo.get(prevLineIdx + 1).getNumDateCode()) {
+                                if (prevInfo.getNumDateCode() < diaryListAdapter.getItem(prevLineIdx + 1).getNumDateCode()) {
                                     diaryListAdapter.removeItem(prevLineIdx);
                                 }
                             }
-                            else if (prevLineIdx == listOriginInfo.size() - 1) {
+                            else if (prevLineIdx == diaryListAdapter.getItemCount() - 1) {
                                 // 내 위의 아이템이 나보다 날짜가 더 작을 때(내 위로 다른 날짜의 일기)
-                                if (prevInfo.getNumDateCode() > listOriginInfo.get(prevLineIdx - 1).getNumDateCode()) {
+                                if (prevInfo.getNumDateCode() > diaryListAdapter.getItem(prevLineIdx - 1).getNumDateCode()) {
                                     diaryListAdapter.removeItem(prevLineIdx);
                                 }
                             }
                             else {
                                 // 내 위아래가 다 나랑 날짜가 다름(필요없는 구분선)
-                                if (prevInfo.getNumDateCode() < listOriginInfo.get(prevLineIdx + 1).getNumDateCode() ||
-                                        prevInfo.getNumDateCode() > listOriginInfo.get(prevLineIdx - 1).getNumDateCode()) {
+                                if (prevInfo.getNumDateCode() < diaryListAdapter.getItem(prevLineIdx + 1).getNumDateCode() &&
+                                        prevInfo.getNumDateCode() > diaryListAdapter.getItem(prevLineIdx - 1).getNumDateCode()) {
                                     diaryListAdapter.removeItem(prevLineIdx);
                                 }
                             }
@@ -243,13 +240,14 @@ public class MainActivity extends AppCompatActivity {
                         delDB = MainDBHelper.getWritableDatabase();
                         delDB.delete("diarylist", "date=? AND idx=?", new String[]{deleteInfo.getStrDateCode(), deleteInfo.getStrIdxCode()});
                     }
-                    chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
-                    showResult(chkCursor);
+                    // 삭제되었는지 확인하는 로그 찍기
+//                    chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
+//                    showResult(chkCursor);
                 }
                 // 변경 시항을 저장합니다.
                 diaryListAdapter.notifyDataSetChanged();
                 MainDBHelper.close();
-                chkCursor.close();
+//                chkCursor.close();
                 setDeleteMode(false);
             }
         });
@@ -337,6 +335,18 @@ public class MainActivity extends AppCompatActivity {
             mImgBtnDelete.setVisibility(View.VISIBLE);
             fabNewDiary.hide();
             diaryListAdapter.setCheckBoxVisibility(true);
+
+            ArrayList<DiaryInfo> arrayList = diaryListAdapter.getDiaryList();
+
+            for (int i = 0; i < arrayList.size(); i++) {
+                if (arrayList.get(i).isChecked()) {
+                    Log.d(LOG_TAG, "No. " + i + " is True");
+                }
+                else {
+                    Log.d(LOG_TAG, "No. " + i + " is False");
+                }
+
+            }
         }
         else {
             mImgBtnDelete.setVisibility(View.GONE);
@@ -404,22 +414,24 @@ public class MainActivity extends AppCompatActivity {
     해당 날짜의 가장 위일 경우, 날짜구분을 위한 아이템이 하나 더 들어갑니다.
             */
     public void setListItem(DiaryInfo info) {
-        ArrayList<DiaryInfo> settingList = diaryListAdapter.getDiaryList();
         int setDate = info.getNumDateCode();
-        int iterSet = 0;
+        int setIdx = 0;
 
         // 이 아이템이 어느 위치로 들어가야할지 정합니다.
-        while (setDate >= settingList.get(iterSet).getNumDateCode()) {
-            iterSet++;
+        for (int iterSet = 0; iterSet < diaryListAdapter.getItemCount(); iterSet++) {
+            setIdx = iterSet;
+            if (setDate < diaryListAdapter.getItem(iterSet).getNumDateCode()) {
+                break;
+            }
         }
-        diaryListAdapter.setItem(iterSet, info);
+        diaryListAdapter.setItem(setIdx, info);
 
-        if (iterSet == 0 || setDate > settingList.get(iterSet - 1).getNumDateCode()) {
+        if (setIdx == 0 || setDate > diaryListAdapter.getItem(setIdx - 1).getNumIdxCode()) {
             DiaryInfo sepInfo = new DiaryInfo();
             sepInfo.setStrDateCode(info.getStrDateCode(), info.getDbDateCode().getStrDayName());
             sepInfo.setNumTypeCode(DAY_SEP_LINE);
 
-            diaryListAdapter.setItem(iterSet, sepInfo);
+            diaryListAdapter.setItem(setIdx, sepInfo);
         }
         diaryListAdapter.notifyDataSetChanged();
     }
