@@ -122,10 +122,12 @@ public class DiaryWriteFragment extends Fragment {
             Cursor loadCursor;
 //                    = loadDB.query("diarylist", mFrag_colHeads, "date=? and idx=?",
 //                    new String[]{mDiaryDateCode.getStrDateCode(), Integer.toString(mDiaryIdx)}, null, null, null);
-            loadCursor = loadDB.rawQuery("SELECT * from diarylist WHERE date = '"+mDiaryDateCode.getStrDateCode()+"' AND idx = '"+Integer.toString(mDiaryIdx)+"' ", null);
+            loadCursor = loadDB.rawQuery(
+                    "SELECT * from diarylist WHERE date = '"+mDiaryDateCode.getStrDateCode()+"' AND idx = '"+Integer.toString(mDiaryIdx)+"' ",
+                    null);
 //            ((MainActivity) getActivity()).showResult(loadCursor);
 
-            loadCursor.moveToFirst();
+            loadCursor.moveToFirst(); // 커서를 반드시 어딘가로든 이동시켜야 한다. MoveNext든 ToFirst든.
             String strTitle = loadCursor.getString(loadCursor.getColumnIndex("title"));
             String strContent = loadCursor.getString(loadCursor.getColumnIndex("content"));
             mEditTextDiaryTitle.setText(strTitle);
@@ -139,6 +141,8 @@ public class DiaryWriteFragment extends Fragment {
         // 받아온 날짜로 날짜 부분을 세팅합니다.
         Log.d(LOG_TAG, "Before Setting : " + mDiaryDateCode.toString());
         mBtnDayScreen.setText(setDate(mDiaryDateCode));
+
+        // - - - - - - Widget Setting - - - - - -
 
         // DatePickerDialog(Not Custom) Listener Setting
         // 날짜를 선택한 날짜로 세팅하고, 동시에 이 프래그먼트가 갖고 있던 날짜 변수도 갱신한다.

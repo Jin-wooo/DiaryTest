@@ -195,14 +195,15 @@ public class MainActivity extends AppCompatActivity {
         mImgBtnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int prevLineIdx = 0;
+                int prevLineIdx, listSize = 0;
                 DiaryInfo prevInfo, deleteInfo;
                 SQLiteDatabase delDB;
 //                SQLiteDatabase delDB = MainDBHelper.getReadableDatabase();
 //                Cursor chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
 //                showResult(chkCursor);
 
-                for (int iterDel = 0; iterDel < diaryListAdapter.getItemCount(); iterDel++) {
+                int iterDel = 0;
+                while (iterDel < diaryListAdapter.getItemCount()) {
                     deleteInfo = diaryListAdapter.getItem(iterDel);
                     // 체크한 항목을 찾아냅니다.(값으로 긁어올 수 있게 작업함)
                     if (deleteInfo.isChecked()) {
@@ -240,10 +241,14 @@ public class MainActivity extends AppCompatActivity {
                         delDB = MainDBHelper.getWritableDatabase();
                         delDB.delete("diarylist", "date=? AND idx=?", new String[]{deleteInfo.getStrDateCode(), deleteInfo.getStrIdxCode()});
                     }
+                    else {
+                        iterDel++;
+                    }
                     // 삭제되었는지 확인하는 로그 찍기
 //                    chkCursor = delDB.rawQuery("SELECT * FROM diarylist", null);
 //                    showResult(chkCursor);
                 }
+
                 // 변경 시항을 저장합니다.
                 diaryListAdapter.notifyDataSetChanged();
                 MainDBHelper.close();
@@ -338,15 +343,14 @@ public class MainActivity extends AppCompatActivity {
 
             ArrayList<DiaryInfo> arrayList = diaryListAdapter.getDiaryList();
 
-            for (int i = 0; i < arrayList.size(); i++) {
-                if (arrayList.get(i).isChecked()) {
-                    Log.d(LOG_TAG, "No. " + i + " is True");
-                }
-                else {
-                    Log.d(LOG_TAG, "No. " + i + " is False");
-                }
-
-            }
+//            for (int i = 0; i < arrayList.size(); i++) {
+//                if (arrayList.get(i).isChecked()) {
+//                    Log.d(LOG_TAG, "No. " + i + " is True");
+//                }
+//                else {
+//                    Log.d(LOG_TAG, "No. " + i + " is False");
+//                }
+//            }
         }
         else {
             mImgBtnDelete.setVisibility(View.GONE);
@@ -424,15 +428,20 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
+        if (setIdx == diaryListAdapter.getItemCount() - 1) {
+            // 다 비교했는데도 없었다는 뜻. 그럼 맨 밑으로 가는 게 맞을거야.
+            setIdx++;
+        }
         diaryListAdapter.setItem(setIdx, info);
 
-        if (setIdx == 0 || setDate > diaryListAdapter.getItem(setIdx - 1).getNumIdxCode()) {
+        if (setIdx == 0 || setDate > diaryListAdapter.getItem(setIdx - 1).getNumDateCode()) {
             DiaryInfo sepInfo = new DiaryInfo();
             sepInfo.setStrDateCode(info.getStrDateCode(), info.getDbDateCode().getStrDayName());
             sepInfo.setNumTypeCode(DAY_SEP_LINE);
 
             diaryListAdapter.setItem(setIdx, sepInfo);
         }
+
         diaryListAdapter.notifyDataSetChanged();
     }
 
