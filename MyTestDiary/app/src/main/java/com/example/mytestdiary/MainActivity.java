@@ -155,11 +155,12 @@ public class MainActivity extends AppCompatActivity {
         fabNewDiary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 오늘 날짜를 보내줘야 함
+                // 오늘 날짜를 보내줘야 하므로 날짜를 미리 갱신해둡시다.
                 long presentTime = System.currentTimeMillis();
                 Date date = new Date(presentTime);
                 updateDateCode(date);
 
+                // 날짜에 맞게 인덱스를 지정하는 작업입니다.
                 SQLiteDatabase db = MainDBHelper.getReadableDatabase();
                 Cursor diaryCursor = db.query("diarylist", getResources().getStringArray(R.array.all_column_names), "date=?",
                         new String[]{todayDateCode.getStrDateCode()},
@@ -169,24 +170,26 @@ public class MainActivity extends AppCompatActivity {
 
                 int newIdx = 0; // 기본적으로는 0이 세팅됨.
                 try {
-                    if (diaryCursor != null && diaryCursor.getCount() > 0) {
+                    if (diaryCursor.getCount() > 0) {
                         newIdx = diaryCursor.getInt(diaryCursor.getColumnIndex("idx")) + 1;
                     }
                 }
                 catch (Exception e){
                     Log.e(LOG_TAG, "fab Click Error");
                 }
-                finally {
-                    if(diaryCursor != null) {
-                        // 내용물이 있든 없든 만든 커서는 닫아야겠죠?
-                        diaryCursor.close();
-                    }
+                finally {// diaryCursor != null
+                    // 내용물이 있든 없든 만든 커서는 닫아야겠죠?
+                    diaryCursor.close();
                 }
                 MainDBHelper.close();
+
+                // 열심히 긁어모은 정보를 다이어리 기록 화면으로 보내줍니다.
+
+                DBDateCode tmpCode = new DBDateCode(todayDateCode);
                 Bundle bundle = new Bundle();
-                bundle.putParcelable("date", todayDateCode);
-                bundle.putInt("idx", newIdx); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기.
-                bundle.putBoolean("isWritten", false);
+                bundle.putParcelable("date", tmpCode);
+                bundle.putInt("idx", newIdx); // 이 버튼을 눌렀으면 그 날의 가장 최신 일기 인덱스로 갱신된다.
+                bundle.putBoolean("isWritten", false); // 쓴 적이 없으니까 false
                 openDiary(bundle);
             }
         });
@@ -220,12 +223,14 @@ public class MainActivity extends AppCompatActivity {
                                 // 내 밑의 아이템이 나보다 날짜가 더 클 때(다를 때...도 가능할듯)
                                 if (prevInfo.getNumDateCode() < diaryListAdapter.getItem(prevLineIdx + 1).getNumDateCode()) {
                                     diaryListAdapter.removeItem(prevLineIdx);
+                                    iterDel--;
                                 }
                             }
                             else if (prevLineIdx == diaryListAdapter.getItemCount() - 1) {
                                 // 내 위의 아이템이 나보다 날짜가 더 작을 때(내 위로 다른 날짜의 일기)
                                 if (prevInfo.getNumDateCode() > diaryListAdapter.getItem(prevLineIdx - 1).getNumDateCode()) {
                                     diaryListAdapter.removeItem(prevLineIdx);
+                                    iterDel--;
                                 }
                             }
                             else {
@@ -233,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (prevInfo.getNumDateCode() < diaryListAdapter.getItem(prevLineIdx + 1).getNumDateCode() &&
                                         prevInfo.getNumDateCode() > diaryListAdapter.getItem(prevLineIdx - 1).getNumDateCode()) {
                                     diaryListAdapter.removeItem(prevLineIdx);
+                                    iterDel--;
                                 }
                             }
                         }
@@ -391,13 +397,13 @@ public class MainActivity extends AppCompatActivity {
 
                 diaryListAdapter.setItem(sepInfo);
             }
-
-            Log.d(LOG_TAG, "< setDiary setting DB > ");
-            Log.d(LOG_TAG, "date : " + setDate);
-            Log.d(LOG_TAG, "idx : " + setIdx);
-            Log.d(LOG_TAG, "Title : " + setTitle);
-            Log.d(LOG_TAG, "Content : " + setContent);
-            Log.d(LOG_TAG, "Dayname : " + setDayName);
+//
+//            Log.d(LOG_TAG, "< setDiary setting DB > ");
+//            Log.d(LOG_TAG, "date : " + setDate);
+//            Log.d(LOG_TAG, "idx : " + setIdx);
+//            Log.d(LOG_TAG, "Title : " + setTitle);
+//            Log.d(LOG_TAG, "Content : " + setContent);
+//            Log.d(LOG_TAG, "Dayname : " + setDayName);
 
             setInfo.setStrDateCode(setDate, setDayName);
             setInfo.setNumIdxCode(setIdx);
@@ -482,5 +488,9 @@ public class MainActivity extends AppCompatActivity {
             Log.d(LOG_TAG, "Dayname : " + cur.getString(namecol));
         }
         cur.moveToFirst();
+    }
+
+    public ArrayList<DiaryInfo> getDiaryListInMain() {
+        return diaryListAdapter.getDiaryList();
     }
 }

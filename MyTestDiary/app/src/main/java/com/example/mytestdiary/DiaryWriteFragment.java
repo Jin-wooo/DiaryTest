@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.example.mytestdiary.DiaryList.DiaryInfo;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class DiaryWriteFragment extends Fragment {
@@ -95,6 +96,7 @@ public class DiaryWriteFragment extends Fragment {
         inputMethodManager =
                 (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         saveAlertDialog = new SaveAlertDialog();
+        ArrayList<DiaryInfo> nowList = ((MainActivity) getActivity()).getDiaryListInMain();
 
         // Initialize
         init(rootView);
@@ -151,6 +153,7 @@ public class DiaryWriteFragment extends Fragment {
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 Calendar tmpCal = Calendar.getInstance();
                 tmpCal.set(year, month, day);
+//                ArrayList<DiaryInfo> nowList = ((MainActivity) getActivity()).getDiaryListInMain();
 
                 mDiaryDateCode.setStrDiaryYear(tmpCal.get(Calendar.YEAR));
                 mDiaryDateCode.setStrDiaryMonth(tmpCal.get(Calendar.MONTH) + 1);
@@ -159,6 +162,29 @@ public class DiaryWriteFragment extends Fragment {
                 mBtnDayScreen.setText(setDate(mDiaryDateCode));
                 Log.d(LOG_TAG, "DatePicker Setting : " + mDiaryDateCode.toString());
                 Log.d(LOG_TAG, "DatePicker DayName : " + tmpCal.get(Calendar.DAY_OF_WEEK));
+
+//                nowList = ((MainActivity) getActivity()).getDiaryListInMain();
+
+                SQLiteDatabase db = mfragDBHelper.getReadableDatabase();
+                Cursor diaryCursor = db.query("diarylist", getResources().getStringArray(R.array.all_column_names), "date=?",
+                        new String[]{mDiaryDateCode.getStrDateCode()},
+                        null, null, "idx DESC");
+                diaryCursor.moveToFirst();
+//                showResult(diaryCursor);
+
+                try {
+                    if (diaryCursor.getCount() > 0) {
+                        mDiaryIdx = diaryCursor.getInt(diaryCursor.getColumnIndex("idx")) + 1;
+                    }
+                }
+                catch (Exception e){
+                    Log.e(LOG_TAG, "DatePicker IDX Change Error");
+                }
+                finally {// diaryCursor != null
+                    // 내용물이 있든 없든 만든 커서는 닫아야겠죠?
+                    diaryCursor.close();
+                }
+                mfragDBHelper.close();
             }
         };
 
@@ -189,8 +215,9 @@ public class DiaryWriteFragment extends Fragment {
         mImgbtnReturn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).closeDiary();
                 mIsTextChanged = false;
+                ((MainActivity) getActivity()).closeDiary();
+
 //                Intent intent = new Intent(getActivity(), MainActivity.class);
 //                startActivity(intent);
             }
@@ -220,6 +247,7 @@ public class DiaryWriteFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 DiaryInfo sendInfo = new DiaryInfo();
+//                ArrayList<DiaryInfo> nowList = ((MainActivity) getActivity()).getDiaryListInMain();
 
                 // DB에 데이터를 저장하는 부분
                 String editedTitle = mEditTextDiaryTitle.getText().toString();
@@ -368,6 +396,7 @@ public class DiaryWriteFragment extends Fragment {
         mfragDBHelper = ((MainActivity) getActivity()).getMainDBHelper();
 
         mFrag_colHeads = getResources().getStringArray(R.array.all_column_names);
+        mDiaryDateCode = new DBDateCode();
     }
 
 
