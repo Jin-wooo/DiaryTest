@@ -13,3 +13,6 @@ Diary for test. just for record.\
 ## SDK Version
 + minSdkVersion 16
 + targetSdkVersion 30
+
+## Development Environment
++ Android Studio 4.0.1
