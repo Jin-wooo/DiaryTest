@@ -1,6 +1,6 @@
 # DiaryTest
-Diary for test. just for record.
-!!INCOMPLETED!!
+Diary for test. just for record.\
+!! INCOMPLETED !!
 
 ## Introduction
 > Simple Diary App. There is only one function to keep a diary. No other function.
