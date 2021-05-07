@@ -16,3 +16,6 @@ Diary for test. just for record.\
 
 ## Development Environment
 + Android Studio 4.0.1
+
+## Screenshot
+<img src="/IMG//MyTestDiary/Diary Screenshot.png" title="tetris" alt="Tetris Screenshot"></img>
